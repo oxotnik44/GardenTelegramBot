@@ -1,104 +1,144 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <meta charset="UTF-8" />
-    <title>Регистрация</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <style>
-      /* Сброс базовых стилей */
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
+<head>
+  <meta charset="UTF-8" />
+  <title>Магазин</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Подключаем скрипт Telegram Web Apps -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    /* Сброс базовых стилей */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: "Arial", sans-serif;
+      background: linear-gradient(135deg, #74ebd5 0%, #acb6e5 100%);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #333;
+    }
+    .container {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      max-width: 600px;
+      width: 100%;
+      animation: fadeIn 1s ease;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #4caf50;
+    }
+    .product {
+      border-bottom: 1px solid #ddd;
+      padding: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .product:last-child {
+      border-bottom: none;
+    }
+    .product-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .product-title {
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+    .product-price {
+      color: #888;
+    }
+    .buy-button {
+      background-color: #4caf50;
+      border: none;
+      padding: 8px 12px;
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .buy-button:hover {
+      background-color: #45a049;
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
       }
-      body {
-        font-family: "Arial", sans-serif;
-        background: linear-gradient(135deg, #74ebd5 0%, #acb6e5 100%);
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: #333;
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
-      .container {
-        background-color: #fff;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-        max-width: 400px;
-        width: 100%;
-        animation: fadeIn 1s ease;
-      }
-      h3 {
-        text-align: center;
-        margin-bottom: 20px;
-        font-size: 1.5em;
-        color: #4caf50;
-      }
-      label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: bold;
-      }
-      input[type="text"],
-      input[type="password"] {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 20px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        font-size: 1em;
-      }
-      button {
-        width: 100%;
-        padding: 10px;
-        background-color: #4caf50;
-        border: none;
-        border-radius: 8px;
-        color: white;
-        font-size: 1em;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-      button:hover {
-        background-color: #45a049;
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-    </style>
-    <script>
-      // Функция отправки данных в Telegram и закрытия веб-приложения
-      function sendData() {
-        var login = document.getElementById("login").value;
-        var password = document.getElementById("password").value;
-        // Формируем объект с данными регистрации
-        var data = JSON.stringify({ login: login, password: password });
-        // Отправляем данные в бот через встроенный объект Telegram.WebApp
-        Telegram.WebApp.sendData(data);
-        // Закрываем веб-приложение
-        Telegram.WebApp.close();
-      }
-    </script>
-  </head>
-  <body>
-    <div class="container">
-      <h3>Регистрация</h3>
-      <form onsubmit="sendData(); return false;">
-        <label for="login">Логин:</label>
-        <input type="text" id="login" name="login" required />
-        <label for="password">Пароль:</label>
-        <input type="password" id="password" name="password" required />
-        <button type="submit">Зарегистрироваться</button>
-      </form>
-    </div>
-  </body>
+    }
+  </style>
+  <script>
+    // Пример списка товаров; в реальном проекте его можно получать с сервера
+    const products = [
+      { id: 1, name: "Товар 1", price: 100 },
+      { id: 2, name: "Товар 2", price: 200 },
+      { id: 3, name: "Товар 3", price: 300 }
+    ];
+
+    // Функция для рендеринга товаров на странице
+    function renderProducts() {
+      const container = document.getElementById("products");
+      products.forEach(product => {
+        const productDiv = document.createElement("div");
+        productDiv.className = "product";
+        
+        const infoDiv = document.createElement("div");
+        infoDiv.className = "product-info";
+        
+        const title = document.createElement("div");
+        title.className = "product-title";
+        title.textContent = product.name;
+        
+        const price = document.createElement("div");
+        price.className = "product-price";
+        price.textContent = product.price + " RUB";
+        
+        infoDiv.appendChild(title);
+        infoDiv.appendChild(price);
+        
+        const button = document.createElement("button");
+        button.className = "buy-button";
+        button.textContent = "Купить";
+        button.onclick = () => buyProduct(product);
+        
+        productDiv.appendChild(infoDiv);
+        productDiv.appendChild(button);
+        
+        container.appendChild(productDiv);
+      });
+    }
+
+    // Функция обработки покупки товара
+    function buyProduct(product) {
+      // Отправляем данные о выбранном товаре в бот через Telegram Web App
+      const data = JSON.stringify(product);
+      Telegram.WebApp.sendData(data);
+      // Можно закрыть web app после выбора товара
+      Telegram.WebApp.close();
+    }
+
+    window.onload = function() {
+      renderProducts();
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h2>Магазин</h2>
+    <div id="products"></div>
+  </div>
+</body>
 </html>
