@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Регистрация</title>
+    <script>
+      // Функция отправки данных в Telegram
+      function sendData() {
+        var login = document.getElementById("login").value;
+        var password = document.getElementById("password").value;
+        // Формируем объект с данными регистрации
+        var data = JSON.stringify({ login: login, password: password });
+        // Отправляем данные в бот
+        Telegram.WebApp.sendData(data);
+      }
+    </script>
+  </head>
+  <body>
+    <h3>Регистрация</h3>
+    <form onsubmit="sendData(); return false;">
+      <label for="login">Логин:</label>
+      <input type="text" id="login" name="login" required /><br /><br />
+      <label for="password">Пароль:</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        required
+      /><br /><br />
+      <button type="submit">Зарегистрироваться</button>
+    </form>
+  </body>
+</html>
