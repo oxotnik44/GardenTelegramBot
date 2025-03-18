@@ -1,56 +1,107 @@
-import json
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, LabeledPrice
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+import datetime
+import os
+from dotenv import load_dotenv
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, ContextTypes, filters
+from photo_handler import save_photo, get_fresh_photos  # Импортируем функции из модуля для работы с фото
+from question_handler import save_question, get_questions  # Импортируем функции из модуля для работы с вопросами
 
-# Замените TOKEN на ваш токен, а PROVIDER_TOKEN на ваш платежный токен (если есть)
-TOKEN = "8016064069:AAGfeHuBipDF_8xvwtTfqNvErSVy-bPeqFs"
-PROVIDER_TOKEN = "YOUR_PROVIDER_TOKEN"  # Если не настроено — оставить как есть
+# Загружаем переменные окружения из .env
+load_dotenv()
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+
+# Список разрешенных пользователей (ID пользователей, которым можно показывать вопросы)
+ALLOWED_USER_IDS = [123456789, 932335772]  # Пример: замените на реальные ID пользователей
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text("Привет! Используйте команду /shop для просмотра товаров.")
+    user_id = update.message.from_user.id
+    
+    # Проверяем, разрешено ли пользователю использовать команду /start
+    if user_id not in ALLOWED_USER_IDS:
+        await update.message.reply_text("У вас нет доступа к этому боту.")
+        return
 
-async def shop_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    # URL веб-приложения с магазином (страница должна быть доступна по HTTPS, например через GitHub Pages)
-    web_app_url = "https://oxotnik44.github.io/GardenTelegramBot/"
+    # Создаем базовую клавиатуру с кнопкой "Переслать мои свежие картинки"
     keyboard = [
-        [InlineKeyboardButton("Открыть магазин", web_app=WebAppInfo(url=web_app_url))]
+        [InlineKeyboardButton("Переслать мои свежие картинки", callback_data="forward_photos")]
     ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text("Выберите товар для покупки:", reply_markup=reply_markup)
 
-async def web_app_data_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    # Обработка данных, полученных из веб-приложения
-    if update.message.web_app_data:
-        data = update.message.web_app_data.data
-        try:
-            product = json.loads(data)
-            name = product.get("name")
-            price = product.get("price")
-            # Если у вас настроена система оплаты, можно отправить счёт (инвойс):
-            # await context.bot.send_invoice(
-            #     chat_id=update.effective_chat.id,
-            #     title=name,
-            #     description=f"Покупка товара: {name}",
-            #     payload="Custom-Payload",
-            #     provider_token=PROVIDER_TOKEN,
-            #     currency="RUB",
-            #     prices=[LabeledPrice(name, int(price) * 100)],  # цена в копейках
-            #     start_parameter="test-payment"
-            # )
-            # Если оплата не настроена, просто выводим информацию:
-            await update.message.reply_text(
-                f"Вы выбрали товар:\nНазвание: {name}\nЦена: {price} RUB\nОплата в разработке."
-            )
-        except Exception as e:
-            await update.message.reply_text("Ошибка обработки данных из веб-приложения.")
+    # Добавляем дополнительные кнопки для разрешенных пользователей
+    if user_id in ALLOWED_USER_IDS:
+        keyboard.append([InlineKeyboardButton("Показать вопросы", callback_data="show_questions")])
+
+    # Создаем разметку с кнопками
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text("Выберите действие:", reply_markup=reply_markup)
+
+async def question(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user_id = update.message.from_user.id
+    
+    # Проверяем, разрешено ли пользователю использовать команду /question
+    if user_id not in ALLOWED_USER_IDS:
+        await update.message.reply_text("У вас нет доступа к этим вопросам.")
+        return
+
+    questions = get_questions(user_id)  # Получаем вопросы через функцию из модуля question_handler
+    await update.message.reply_text("\n".join(questions) if questions else "Вопросов нет.")
+
+async def forward_photos(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user_id = update.callback_query.from_user.id
+    chat_id = update.callback_query.message.chat.id
+    fresh_photos = get_fresh_photos(user_id)  # Получаем свежие фотографии через функцию из модуля photo_handler
+    
+    if fresh_photos:
+        for file_id in fresh_photos:
+            await context.bot.send_photo(chat_id=chat_id, photo=file_id)
+        await update.callback_query.message.reply_text("Свежие картинки пересланы!")
+    else:
+        await update.callback_query.message.reply_text("Нет новых картинок.")
+
+async def show_questions(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user_id = update.callback_query.from_user.id
+    
+    # Проверяем, разрешено ли пользователю видеть вопросы
+    if user_id not in ALLOWED_USER_IDS:
+        await update.callback_query.message.reply_text("У вас нет доступа к этим вопросам.")
+        return
+    
+    questions = get_questions(user_id)  # Получаем вопросы через функцию из модуля question_handler
+    await update.callback_query.message.reply_text("\n".join(questions) if questions else "Вопросов нет.")
+
+async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user_id = update.message.from_user.id
+    text = update.message.text.strip()
+    
+    # Сохраняем вопрос (если он текстовый)
+    save_question(user_id, text)
+
+async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user_id = update.message.from_user.id
+    # Получаем file_id самого высокого качества
+    photo_file_id = update.message.photo[-1].file_id
+    save_photo(user_id, photo_file_id)  # Сохраняем фото синхронно
+
+async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    query = update.callback_query
+    await query.answer()  # отвечаем на callback запрос
+
+    # Проверяем, на какую кнопку был клик
+    if query.data == "forward_photos":
+        await forward_photos(update, context)
+    elif query.data == "show_questions":
+        await show_questions(update, context)
 
 def main() -> None:
     app = Application.builder().token(TOKEN).build()
 
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("shop", shop_command))
-    # Обработчик для данных, полученных из Web App
-    app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, web_app_data_handler))
+    # Обработчики команд и сообщений
+    app.add_handler(CommandHandler("start", start))  # Только разрешенным пользователям будет доступна эта команда
+    app.add_handler(CommandHandler("question", question))  # Только разрешенным пользователям будет доступна эта команда
+    app.add_handler(MessageHandler(filters.PHOTO, handle_photo))  # Обрабатываем фото
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))  # Обрабатываем текстовые сообщения
+
+    # Обработчик callback-запросов
+    app.add_handler(CallbackQueryHandler(button_callback))
 
     app.run_polling()
 
