@@ -2,40 +2,23 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from config import ALLOWED_USER_IDS
-user_data = {}
-
-
-def save_question(user_id, question_text, message_id=None):
-    """Сохраняет вопрос пользователя и его message_id, если в тексте есть '?'"""
-    if "?" in question_text:
-        question_entry = {"text": question_text, "message_id": message_id}
-        # Добавляем вопрос в список вопросов пользователя
-        user_data.setdefault(user_id, {"photos": [], "questions": []})[
-            "questions"].append(question_entry)
-
-
-def get_questions(user_id):
-    """Возвращает список вопросов пользователя"""
-    return user_data.get(user_id, {}).get("questions", [])
+from modules.storage import get_user_message, user_data
 
 
 def delete_question(user_id, idx):
-    user_questions = user_data.get(user_id, {}).get("questions", [])
-    if 0 <= idx < len(user_questions):
-        # Если порядок не важен, заменим удаляемый элемент последним и удалим последний
-        user_questions[idx] = user_questions[-1]
-        user_questions.pop()
-        return True
+    if user_id in user_data and "questions" in user_data[user_id]:
+        user_questions = user_data[user_id]["questions"]
+        if 0 <= idx < len(user_questions):
+            del user_questions[idx]  # Удаляем напрямую из списка
+            print(
+                f"✅ Успешно удалён вопрос [{idx}] для пользователя {user_id}")
+            return True
+        else:
+            print(
+                f"⚠️ Ошибка: Индекс {idx} вне диапазона (0 - {len(user_questions)-1}) у пользователя {user_id}")
+    else:
+        print(f"❌ Ошибка: Вопросы отсутствуют у пользователя {user_id}")
     return False
-
-
-async def question(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Команда /question — сразу показываем список вопросов"""
-    user_id = update.message.from_user.id
-    if user_id not in ALLOWED_USER_IDS:
-        await update.message.reply_text("У вас нет доступа к этим вопросам.")
-        return
-    await show_questions(update, context)
 
 
 async def show_questions(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -59,7 +42,7 @@ async def show_questions(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     # Очистим список старых сообщений
     context.user_data["question_messages"] = []
 
-    questions = get_questions(user_id)
+    questions = get_user_message(user_id, "question")
     if not questions:
         msg = None
         if update.message:
@@ -119,7 +102,7 @@ async def view_later(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     user_id = update.callback_query.from_user.id
 
     # Получаем список вопросов один раз
-    questions = get_questions(user_id)
+    questions = get_user_message(user_id, "question")
 
     # Быстрый поиск вопроса по message_id
     found_q = next((q for q in questions if q.get(

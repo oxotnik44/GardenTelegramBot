@@ -3,10 +3,10 @@ from telegram import InputMediaPhoto
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
-from modules.photo_handler import get_tagged_fresh_photos
-from modules.question_handler import save_question, get_questions, delete_question, show_questions, answer_questions, view_later
+from modules.question_handler import delete_question, show_questions, answer_questions, view_later
 from config import ALLOWED_USER_IDS
-from modules.useful_handler import get_useful_items, process_interesting_info_message
+from modules.useful_handler import process_interesting_info_message
+from modules.storage import get_user_message, user_data_useful, save_user_message
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -21,20 +21,31 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text("Выберите действие:", reply_markup=InlineKeyboardMarkup(keyboard))
 
 
+async def question(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Команда /question — сразу показываем список вопросов"""
+    user_id = update.message.from_user.id
+    if user_id not in ALLOWED_USER_IDS:
+        await update.message.reply_text("У вас нет доступа к этим вопросам.")
+        return
+    await show_questions(update, context)
+
+# Функция для группировки и отправки картинок в media_group
+
+
+async def send_media_group(bot, chat_id, file_ids, batch_size=10):
+    for i in range(0, len(file_ids), batch_size):
+        media_group = [InputMediaPhoto(media=file_id)
+                       for file_id in file_ids[i:i+batch_size]]
+        await bot.send_media_group(chat_id=chat_id, media=media_group)
+
+
 async def products(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.message.from_user.id
-    # Отправляем только в чат, откуда пришёл запрос (личный чат пользователя)
     chat_id = update.message.chat.id
-    tagged_photos = get_tagged_fresh_photos(user_id, tag="@Товары")
+    tagged_photos = get_user_message(user_id, "product", "@Товары")
 
     if tagged_photos:
-        # Группируем фото по 10 штук (максимум для media_group)
-        batch_size = 10
-        for i in range(0, len(tagged_photos), batch_size):
-            media_group = []
-            for file_id in tagged_photos[i:i+batch_size]:
-                media_group.append(InputMediaPhoto(media=file_id))
-            await context.bot.send_media_group(chat_id=chat_id, media=media_group)
+        await send_media_group(context.bot, chat_id, tagged_photos)
     else:
         await update.message.reply_text("Нет новых картинок с тегом @Товары.")
 
@@ -42,7 +53,7 @@ async def products(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def useful(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.message.from_user.id
     chat_id = update.message.chat.id
-    items = get_useful_items(user_id)
+    items = get_user_message(user_id, "useful")
 
     if not items:
         await update.message.reply_text("Нет сохранённых сообщений с тегом @Интересная информация.")
@@ -57,11 +68,7 @@ async def useful(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await context.bot.send_message(chat_id=chat_id, text=text_response)
 
     if photo_ids:
-        batch_size = 10  # максимум для media_group
-        for i in range(0, len(photo_ids), batch_size):
-            media_group = [InputMediaPhoto(media=file_id)
-                           for file_id in photo_ids[i:i+batch_size]]
-            await context.bot.send_media_group(chat_id=chat_id, media=media_group)
+        await send_media_group(context.bot, chat_id, photo_ids)
 
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -82,7 +89,8 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         "current_question_user_id", update.message.from_user.id)
 
     if user_msg_id:
-        questions = get_questions(question_owner_id)
+        questions = get_user_message(question_owner_id, "useful")
+
         for idx, q in enumerate(questions):
             if q.get("message_id") == user_msg_id:
                 # Отправляем ответ в виде reply на оригинальное сообщение пользователя
@@ -107,9 +115,10 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
                 return
         await update.message.reply_text("Ошибка: не найдено оригинальное сообщение с вопросом.")
     else:
-        # Если пользователь пишет текст без нажатия "Ответить", сохраняем как новый вопрос
-        save_question(update.message.from_user.id,
-                      update.message.text.strip(), update.message.message_id)
+        save_user_message(update.message.from_user.id,
+                          {"text": update.message.text.strip(
+                          ), "message_id": update.message.message_id},
+                          tag="question")
 
 
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -128,7 +137,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     elif data.startswith("delete_"):
         user_msg_id = int(data.split("_")[1])
         user_id = query.from_user.id
-        questions = get_questions(user_id)
+        questions = get_user_message(user_id, "question")
         found_index = None
         found_question = None
 
