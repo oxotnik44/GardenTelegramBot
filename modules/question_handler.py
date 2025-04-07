@@ -63,8 +63,6 @@ async def show_questions(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     # Отправляем сообщения с кнопками последовательно
     for question_data in questions:
         question_text = question_data.get("text", "Нет текста вопроса")
-        # Это ID оригинального сообщения пользователя
-        user_msg_id = question_data.get("message_id")
         # Делаем кнопки, используя именно user_msg_id в callback_data
         keyboard = [
             [
