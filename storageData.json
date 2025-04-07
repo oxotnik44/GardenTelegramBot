@@ -1,0 +1,51 @@
+{
+    "user_data": {
+        "photos": [],
+        "questions": []
+    },
+    "user_data_useful": {
+        "useful_photo": [
+            {
+                "photo": "AgACAgIAAyEFAASZ3ns6AAIDpmfz2gMXpqkFq14duQIZh1Ud0U_9AAJa8DEbQH6hS4muKLTuOLv8AQADAgADeQADNgQ",
+                "saved_date": "2025-04-07T21:43:11.525330",
+                "uuid": "a71297d0-4299-40b2-bc58-dc14f85740a6"
+            },
+            {
+                "photo": "AgACAgIAAyEFAASZ3ns6AAIDpmfz2gMXpqkFq14duQIZh1Ud0U_9AAJa8DEbQH6hS4muKLTuOLv8AQADAgADeQADNgQ",
+                "saved_date": "2025-04-07T21:43:11.526702",
+                "uuid": "d78e4f61-c669-4eb0-b77f-ca73fa03b8f8"
+            }
+        ],
+        "useful_text": [
+            {
+                "text": "цйу\n@Интересное",
+                "saved_date": "2025-04-07T21:43:46.573599",
+                "uuid": "7bf44929-e0ec-4fdd-a3d7-4a612bc78179"
+            }
+        ]
+    },
+    "group_buffer_useful": {},
+    "group_buffer": {},
+    "product_photos": [
+        {
+            "photo": {
+                "photo": "AgACAgIAAxkBAAIdS2fz5II-5vkKrbkvBw81AgWYFCR_AAKW_DEbwHygS1bIp8nybDiyAQADAgADeQADNgQ",
+                "tags": [
+                    "@товары"
+                ]
+            },
+            "saved_date": "2025-04-07T21:43:15.878811",
+            "uuid": "7e71368a-f917-49ad-8707-c59053f390b8"
+        },
+        {
+            "photo": {
+                "photo": "AgACAgIAAxkBAAIdS2fz5II-5vkKrbkvBw81AgWYFCR_AAKW_DEbwHygS1bIp8nybDiyAQADAgADeQADNgQ",
+                "tags": [
+                    "@товары"
+                ]
+            },
+            "saved_date": "2025-04-07T21:43:15.879688",
+            "uuid": "a9e0a7ae-6df8-4133-a39c-b97533780498"
+        }
+    ]
+}
