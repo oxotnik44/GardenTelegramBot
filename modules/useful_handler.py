@@ -22,11 +22,14 @@ async def process_interesting_info_message(update: Update):
     save_user_message(update.message.from_user.id, item, tag="useful")
 
 
-async def handle_photo_useful(update, context):
+async def handle_photo_useful(update, context, force_tag: bool = False):
     """
     Обрабатывает входящие фото.
     Если фото отправлено в одиночку – сохраняет сразу;
     если это часть альбома (media_group) – группирует и ждёт завершения группы.
+
+    При групповой отправке, если force_tag равен True или хотя бы у одной картинки
+    присутствует тег "@интересное", то этот тег присваивается всем фотографиям группы.
     """
     user_id = update.message.from_user.id
     photo_file_id = update.message.photo[-1].file_id
@@ -39,9 +42,8 @@ async def handle_photo_useful(update, context):
     if media_group_id is None:
         # Одиночное фото
         tags = []
-        if "@интересное" in caption:  # проверяем наличие нужного тега в caption
+        if force_tag or ("@интересное" in caption):
             tags.append("@интересное")
-        # Передаём фото как объект словаря с ключом "photo"
         item = {"photo": photo_file_id, "tags": tags}
         save_user_message(user_id, item, tag="useful")
     else:
@@ -55,7 +57,7 @@ async def handle_photo_useful(update, context):
             }
         group_info = group_buffer_useful[key]
         group_info["photos"].append(photo_file_id)
-        if "@интересное" in caption:  # отмечаем, что в группе присутствует нужный тег
+        if force_tag or ("@интересное" in caption):
             group_info["has_interesting_info"] = True
         if group_info["task"] is not None:
             group_info["task"].cancel()

@@ -140,7 +140,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     user_data_ctx = context.user_data
     user_msg_id = user_data_ctx.pop("current_question_msg_id", None)
     prompt_msg_id = user_data_ctx.pop("prompt_message_id", None)
-    bot_msg_id = user_data_ctx.pop("current_bot_msg_id", None)
+    message_to_delete = user_data_ctx.pop("message_to_delete", None)
 
     if user_msg_id:
         questions = get_user_message("question")
@@ -172,19 +172,18 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
                 except Exception:
                     pass
 
-                # Удаляем сообщение с вопросом, если bot_msg_id существует
-                print(bot_msg_id)
+                # Удаляем сообщение с prompt_message_id
 
-                if bot_msg_id:
+                if prompt_msg_id:
                     try:
-
-                        await context.bot.delete_message(chat_id=update.effective_chat.id, message_id=bot_msg_id)
+                        await context.bot.delete_message(chat_id=update.effective_chat.id, message_id=prompt_msg_id)
                         print(
-                            f"Удалено сообщение с вопросом. bot_msg_id: {bot_msg_id}")
+                            f"Удалено сообщение с prompt_message_id: {prompt_msg_id}")
                     except Exception:
                         await update.message.reply_text("Ответ отправлен, но не удалось удалить сообщение с вопросом.")
-
                 # Удаляем вопрос из хранилища
+                await message_to_delete.delete()
+
                 if question_uuid:
                     await delete_question(context, question_uuid)
                 else:
@@ -211,16 +210,15 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     query = update.callback_query
     await query.answer()
     data = query.data
-
+    message_to_delete = query.message
     if data == "show_questions":
         await show_questions(update, context)
     elif data.startswith("answer_"):
         # Разделяем uuid и message_id
         uuid_to_find, user_msg_id = data.split("_", 1)[1].split("|")
         user_msg_id = int(user_msg_id)  # Преобразуем user_msg_id в int
-
         # Для отладки
-        await answer_questions(update, context, user_msg_id)
+        await answer_questions(update, context, user_msg_id, message_to_delete)
 
     elif data.startswith("later_"):
         # Разделяем uuid и message_id

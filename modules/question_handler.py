@@ -86,7 +86,7 @@ async def show_questions(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         context.user_data["question_messages"].append(bot_msg.message_id)
 
 
-async def answer_questions(update: Update, context: ContextTypes.DEFAULT_TYPE, user_msg_id: int) -> None:
+async def answer_questions(update: Update, context: ContextTypes.DEFAULT_TYPE, user_msg_id: int,  message_to_delete) -> None:
     """Нажата кнопка "Ответить". Сохраняем user_msg_id для дальнейшего handle_text"""
     user_id = update.callback_query.from_user.id
 
@@ -100,14 +100,7 @@ async def answer_questions(update: Update, context: ContextTypes.DEFAULT_TYPE, u
     prompt_message = await update.effective_chat.send_message("Введите ответ на вопрос:")
     # ✅ Сохраняем ID сообщения
     context.user_data["prompt_message_id"] = prompt_message.message_id
-
-    # Сохраняем bot_msg_id (предположительно, это id сообщения, связанного с вопросом)
-    # Если у вас есть bot_msg_id из предыдущих данных
-    bot_msg_id = context.user_data.get("current_question_msg_id")
-    if bot_msg_id:
-        # Сохраняем bot_msg_id в context.user_data
-        context.user_data["current_bot_msg_id"] = bot_msg_id
-        print(f"Сохранён bot_msg_id: {bot_msg_id}")
+    context.user_data["message_to_delete"] = message_to_delete
 
 
 async def view_later(update: Update, context: ContextTypes.DEFAULT_TYPE, uuid_to_find: str, user_msg_id: int) -> None:
