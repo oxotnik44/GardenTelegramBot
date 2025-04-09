@@ -122,6 +122,7 @@ def filter_old_records(records, days=30):
     """
     Удаляет записи старше указанного количества дней.
     Если поле saved_date представлено строкой, пытается преобразовать его в datetime.
+    При изменении списка вызывает сохранение данных в файл.
     """
     now = datetime.datetime.now()
     filtered = []
@@ -133,9 +134,12 @@ def filter_old_records(records, days=30):
             except Exception:
                 continue
         if isinstance(saved_date, datetime.datetime):
+            # Сохраняем только записи, не старше указанного количества дней
             if (now - saved_date).days <= days:
                 filtered.append(r)
-    records[:] = filtered
+    if len(filtered) != len(records):
+        records[:] = filtered
+        save_storage_data()  # Сохраняем изменения сразу в файл
 
 
 def save_user_message(user_id, item, tag):
