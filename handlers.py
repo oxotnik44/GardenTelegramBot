@@ -75,24 +75,38 @@ async def products(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     except Exception:
         pass
 
-    # Получаем фото с тегом @товары. Если записи отсутствуют, возвращаем пустой список.
-    tagged_photos = get_user_message("product")
-    if tagged_photos:
-        # Извлекаем только идентификаторы фото
-        file_ids = [p["photo"] for p in tagged_photos]
-        # Отправляем фото группами по 10 изображений (альбомами)
-        await send_media_group(context.bot, user_id, file_ids)
+    # Получаем объединённый список товаров
+    products_list = get_user_message("product")
+
+    if products_list:
+        # Разбиваем список на фото и видео для отправки
+        photo_ids = [item["media"]
+                     for item in products_list if item["type"] == "photo"]
+        video_ids = [item["media"]
+                     for item in products_list if item["type"] == "video"]
+
+        if photo_ids:
+            await send_media_group(context.bot, user_id, photo_ids)
+
+        if video_ids:
+            # Отправка видео можно реализовать по аналогии с фото,
+            # например, отправляя каждое видео отдельным сообщением или группируя их
+            for video in video_ids:
+                try:
+                    await context.bot.send_video(chat_id=user_id, video=video)
+                except Exception as e:
+                    print(f"Ошибка при отправке видео: {e}")
     else:
         await context.bot.send_message(
             chat_id=user_id,
-            text="Нет новых картинок с тегом @товары."
+            text="Нет новых товаров с тегами."
         )
 
 
 async def useful(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """
     Обрабатывает команду /useful для вывода сохранённых сообщений с тегом @Интересное.
-    Данные берутся из хранилища с ключами "useful_photo" и "useful_text".
+    Данные берутся из хранилища с ключами "useful_photo", "useful_text" и "useful_video".
     """
     user_id = update.message.from_user.id  # Личный чат с ботом
 
@@ -104,9 +118,16 @@ async def useful(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     useful_data = get_user_message("useful")
 
-    if not useful_data or (not useful_data.get("useful_text") and not useful_data.get("useful_photo")):
-        # Отправляем сообщение в личку
-        await context.bot.send_message(chat_id=user_id, text="Нет сохранённых сообщений с тегом @Интересное.")
+    # Проверяем, есть ли сохранённые данные хотя бы по одному из типов
+    if not useful_data or (
+        not useful_data.get("useful_text") and
+        not useful_data.get("useful_photo") and
+        not useful_data.get("useful_video")
+    ):
+        await context.bot.send_message(
+            chat_id=user_id,
+            text="Нет сохранённых сообщений с тегом @Интересное."
+        )
         return
 
     # Обработка текстовых сообщений
@@ -121,15 +142,23 @@ async def useful(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Обработка фото с разбиением на альбомы
     photo_items = useful_data.get("useful_photo", [])
     photo_ids = []
-
     for item in photo_items:
         if isinstance(item, dict) and "photo" in item:
             photo_ids.append(item["photo"])
         elif isinstance(item, str):
             photo_ids.append(item)
-
     if photo_ids:
         await send_media_group(context.bot, user_id, photo_ids)
+
+    # Обработка видео
+    video_items = useful_data.get("useful_video", [])
+    for item in video_items:
+        video = item.get("video") if isinstance(item, dict) else item
+        if video:
+            try:
+                await context.bot.send_video(chat_id=user_id, video=video)
+            except Exception as e:
+                print(f"Ошибка при отправке видео: {e}")
 
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

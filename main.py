@@ -4,62 +4,74 @@ from config import TOKEN
 from handlers import handle_text, button_callback, products, useful, question, start
 from modules.photo_handler import handle_photo
 from modules.useful_handler import handle_photo_useful
+from modules.video_handler import handle_video
 
-# Глобальные переменные для состояния
+# Глобальные переменные для состояния фото
 first_photo_has_tag = None
-reset_task = None  # Задача сброса first_photo_has_tag
-
+# Флаги, устанавливаемые текстовыми сообщениями
 pending_tag = False
 pending_interesting = False
-pending_reset_task = None  # Таймер сброса pending_*
+
+# Глобальные переменные для состояния видео
+first_video_has_tag = None
 
 
-async def reset_pending_flags():
-    """Сбрасывает флаги pending_tag и pending_interesting через 10 секунд без новых фото."""
-    try:
-        await asyncio.sleep(10)
-    except asyncio.CancelledError:
-        # Если таймер отменен — просто выходим
-        return
-    global pending_tag, pending_interesting, pending_reset_task
-    print("Таймер ожидания фото истек. Флаги сброшены.")
-    pending_tag = False
-    pending_interesting = False
-    pending_reset_task = None  # Очистка задачи
+async def handle_video_with_tag(update, context):
+    """
+    Обрабатывает видео и проверяет наличие тегов @товары или @интересное.
+    Вызывает handle_video с передачей конкретного тега.
+    """
+    global first_video_has_tag, pending_tag, pending_interesting
 
+    message_text = update.message.caption.lower() if update.message.caption else ""
 
-async def reset_first_photo_flag():
-    """Сбрасывает флаг first_photo_has_tag через 10 секунд."""
-    global first_photo_has_tag, reset_task
-    await asyncio.sleep(10)
-    first_photo_has_tag = None
-    reset_task = None  # Очистка задачи
+    tag = None
+
+    # При наличии флага pending_tag/pending_interesting используем соответствующий тег
+    if pending_tag:
+        tag = "@товары"
+        print(
+            f"Видео после текста с @товары. Обработка с single_tag='@товары'. ID: {update.message.video.file_id}")
+    elif pending_interesting:
+        tag = "@интересное"
+        print(
+            f"Видео после текста с @интересное. Обработка с single_tag='@интересное'. ID: {update.message.video.file_id}")
+    else:
+        # Если нет флагов, ищем тег в caption
+        if "@товары" in message_text:
+            tag = "@товары"
+            first_video_has_tag = True
+        elif "@интересное" in message_text:
+            tag = "@интересное"
+            first_video_has_tag = False
+        else:
+            first_video_has_tag = False
+
+        print(
+            f"Видео без явного текста до этого. Обработка через caption. ID: {update.message.video.file_id}")
+
+    await handle_video(update, context, single_tag=tag)
 
 
 async def text_message_handler(update, context):
-    """
-    Обработчик текстовых сообщений.
-    Если сообщение содержит теги "@товары" или "@интересное", устанавливает флаги.
-    """
-    global pending_tag, pending_interesting, pending_reset_task, first_photo_has_tag
+    global pending_tag, pending_interesting, first_photo_has_tag
     text = update.message.text.lower()
 
-    # Сбрасываем first_photo_has_tag, чтобы использовать новый тег
     first_photo_has_tag = None
 
     if "@товары" in text:
         print("Найдено сообщение @товары")
         pending_tag = True
-        pending_interesting = False  # Дополнительно можно сбрасывать другой флаг, если нужно
-    if "@интересное" in text:
+        pending_interesting = False
+    elif "@интересное" in text:
         print("Найдено сообщение @интересное")
         pending_interesting = True
         pending_tag = False
-
-    # Отменяем предыдущий таймер и запускаем новый
-    if pending_reset_task:
-        pending_reset_task.cancel()
-    pending_reset_task = asyncio.create_task(reset_pending_flags())
+    else:
+        # если ни один тег не найден — сбрасываем оба
+        pending_tag = False
+        pending_interesting = False
+        print("Сообщение не содержит тегов, сброс флагов")
 
     await handle_text(update, context)
 
@@ -67,10 +79,10 @@ async def text_message_handler(update, context):
 async def handle_photo_with_tag(update, context):
     """
     Обрабатывает фото и проверяет наличие тегов @товары или @интересное.
-    Теперь при каждом новом фото, если в подписи присутствует явный тег,
-    значение first_photo_has_tag обновляется, а таймер его сброса перезапускается.
+    Если в подписи фото указан явный тег, значение first_photo_has_tag обновляется.
+    Флаги pending_tag и pending_interesting сохраняются до изменения новым текстом.
     """
-    global first_photo_has_tag, pending_tag, pending_interesting, pending_reset_task, reset_task
+    global first_photo_has_tag, pending_tag, pending_interesting
 
     message_text = update.message.caption.lower() if update.message.caption else ""
 
@@ -83,20 +95,14 @@ async def handle_photo_with_tag(update, context):
             f"Фото после @интересное. Обработка в handle_photo_useful. ID: {update.message.photo[-1].file_id}")
         await handle_photo_useful(update, context, force_tag=True)
     else:
-        # Если в новом фото явно указан тег, обновляем first_photo_has_tag
         if "@товары" in message_text:
             first_photo_has_tag = True
         elif "@интересное" in message_text:
             first_photo_has_tag = False
 
-        # Если тег так и не был определён, можно задать значение по умолчанию (например, False)
+        # Если тег не определён – задаём значение по умолчанию (например, False)
         if first_photo_has_tag is None:
             first_photo_has_tag = False
-
-        # Перезапускаем таймер сброса first_photo_has_tag
-        if reset_task:
-            reset_task.cancel()
-        reset_task = asyncio.create_task(reset_first_photo_flag())
 
         if first_photo_has_tag:
             print(
@@ -106,11 +112,7 @@ async def handle_photo_with_tag(update, context):
             print(
                 f"Тег @товары не найден. Фото в handle_photo_useful. ID: {update.message.photo[-1].file_id}")
             await handle_photo_useful(update, context)
-
-    # Перезапускаем таймер сброса pending_* на 10 секунд
-    if pending_reset_task:
-        pending_reset_task.cancel()
-    pending_reset_task = asyncio.create_task(reset_pending_flags())
+    # Флаги pending_tag и pending_interesting не изменяются здесь
 
 
 def main() -> None:
@@ -125,6 +127,7 @@ def main() -> None:
     app.add_handler(MessageHandler(
         filters.TEXT & ~filters.COMMAND, text_message_handler))
     app.add_handler(CallbackQueryHandler(button_callback))
+    app.add_handler(MessageHandler(filters.VIDEO, handle_video_with_tag))
 
     print("Бот запущен!")
     app.run_polling()

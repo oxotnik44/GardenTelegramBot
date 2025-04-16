@@ -12,13 +12,17 @@ async def process_interesting_info_message(update: Update):
     message_text = update.message.text.strip()
     # Удаляем тег @интересное из текста
     message_text = message_text.replace('@интересное', '').strip()
-    # Создаем объект для сохранения
+
+    # Проверка: если после удаления тега текст пуст — не сохраняем
+    if not message_text:
+        print("Пустой текст после удаления тега @интересное. Сообщение не сохранено.")
+        return
+
     item = {
-        "text": message_text,  # Сохраняем текст без тега
+        "text": message_text,
         "message_id": update.message.message_id,
-        "type": "text"  # Тип сообщения - текст
+        "type": "text"
     }
-    # Сохраняем сообщение как полезную информацию для пользователя, передавая user_id
     save_user_message(update.message.from_user.id, item, tag="useful")
 
 

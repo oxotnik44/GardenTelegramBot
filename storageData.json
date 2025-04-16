@@ -4,246 +4,37 @@
         "questions": [
             {
                 "user_id": 932335772,
-                "text": "w?",
-                "message_id": 1034,
-                "saved_date": "2025-04-07T23:23:23.981051",
-                "uuid": "9987afcb-aeaf-4b96-b0e0-417bd5749e33"
+                "text": "qwe?",
+                "message_id": 9283,
+                "saved_date": "2025-04-16T19:24:45.563939",
+                "uuid": "05faaf6a-fa31-417d-a0f1-0f3ec8633c56"
             }
         ]
     },
     "user_data_useful": {
-        "useful_photo": [
+        "useful_photo": [],
+        "useful_text": [],
+        "useful_video": [
             {
-                "photo": "AgACAgIAAxkBAAIdS2fz5II-5vkKrbkvBw81AgWYFCR_AAKW_DEbwHygS1bIp8nybDiyAQADAgADeQADNgQ",
-                "saved_date": "2025-04-07T23:22:42.316403",
-                "uuid": "e0465eba-d710-4e4e-9e99-a3e33e6581d9"
-            },
-            {
-                "photo": "AgACAgIAAxkBAAIdS2fz5II-5vkKrbkvBw81AgWYFCR_AAKW_DEbwHygS1bIp8nybDiyAQADAgADeQADNgQ",
-                "saved_date": "2025-04-07T23:22:42.317357",
-                "uuid": "2bf125f1-e825-401c-8b5a-586dbaf1af23"
-            },
-            {
-                "photo": "AgACAgIAAxkBAAIdS2fz5II-5vkKrbkvBw81AgWYFCR_AAKW_DEbwHygS1bIp8nybDiyAQADAgADeQADNgQ",
-                "saved_date": "2025-04-07T23:22:42.318014",
-                "uuid": "86eb483c-b097-48b7-a247-d813a9d68493"
-            },
-            {
-                "photo": "AgACAgIAAxkBAAIdS2fz5II-5vkKrbkvBw81AgWYFCR_AAKW_DEbwHygS1bIp8nybDiyAQADAgADeQADNgQ",
-                "saved_date": "2025-04-07T23:22:42.318631",
-                "uuid": "50885ec6-81c5-4f76-86b4-19aee6a49a95"
-            },
-            {
-                "photo": "AgACAgIAAxkBAAIdS2fz5II-5vkKrbkvBw81AgWYFCR_AAKW_DEbwHygS1bIp8nybDiyAQADAgADeQADNgQ",
-                "saved_date": "2025-04-07T23:22:42.319332",
-                "uuid": "71a4a9d1-66e9-471c-ba19-6618a555b1e2"
-            },
-            {
-                "photo": "AgACAgIAAxkBAAIdS2fz5II-5vkKrbkvBw81AgWYFCR_AAKW_DEbwHygS1bIp8nybDiyAQADAgADeQADNgQ",
-                "saved_date": "2025-04-07T23:22:42.319864",
-                "uuid": "ff33674c-e8b7-4ca5-bb42-2e7b82e8a9b1"
-            },
-            {
-                "photo": "AgACAgIAAxkBAAIdS2fz5II-5vkKrbkvBw81AgWYFCR_AAKW_DEbwHygS1bIp8nybDiyAQADAgADeQADNgQ",
-                "saved_date": "2025-04-07T23:22:42.320293",
-                "uuid": "962eb952-0a60-4353-bd7a-7e8874408195"
-            },
-            {
-                "photo": "AgACAgIAAxkBAAIdS2fz5II-5vkKrbkvBw81AgWYFCR_AAKW_DEbwHygS1bIp8nybDiyAQADAgADeQADNgQ",
-                "saved_date": "2025-04-07T23:22:42.320759",
-                "uuid": "5a0edb82-e32f-4b10-beb8-f12ca0ff4455"
-            },
-            {
-                "photo": "AgACAgIAAxkBAAIdS2fz5II-5vkKrbkvBw81AgWYFCR_AAKW_DEbwHygS1bIp8nybDiyAQADAgADeQADNgQ",
-                "saved_date": "2025-04-07T23:22:42.321264",
-                "uuid": "bb7f4daa-6ff2-4a17-9105-ff9fb181222f"
-            },
-            {
-                "photo": "AgACAgIAAxkBAAIdS2fz5II-5vkKrbkvBw81AgWYFCR_AAKW_DEbwHygS1bIp8nybDiyAQADAgADeQADNgQ",
-                "saved_date": "2025-04-07T23:22:42.321757",
-                "uuid": "7d3b5f41-ed25-41fd-9710-51ecb8243d56"
-            },
-            {
-                "photo": "AgACAgIAAxkBAAIdS2fz5II-5vkKrbkvBw81AgWYFCR_AAKW_DEbwHygS1bIp8nybDiyAQADAgADeQADNgQ",
-                "saved_date": "2025-04-07T23:22:42.410838",
-                "uuid": "a04fa5f5-8e77-4f4d-9e19-ecc19eb62635"
-            },
-            {
-                "photo": "AgACAgIAAxkBAAIdS2fz5II-5vkKrbkvBw81AgWYFCR_AAKW_DEbwHygS1bIp8nybDiyAQADAgADeQADNgQ",
-                "saved_date": "2025-04-07T23:22:42.412005",
-                "uuid": "d9f39dd2-f8eb-4713-887f-36fce3c80936"
-            },
-            {
-                "photo": "AgACAgIAAyEFAASZ3ns6AAIEF2fz_YSblVwKgZu0t1U6MY8mcPExAAJi-DEbWluhSyxs9ddcKJi1AQADAgADeAADNgQ",
-                "saved_date": "2025-04-07T23:30:24.268000",
-                "uuid": "c2942fde-1b78-4fb9-9102-eeeb625a4fc6"
-            },
-            {
-                "photo": "AgACAgIAAyEFAASZ3ns6AAIEGGfz_YTSsrISZv6FYLBvf4Mr1cWSAAJj-DEbWluhS6cvKVHJJgRzAQADAgADeQADNgQ",
-                "saved_date": "2025-04-07T23:30:24.269097",
-                "uuid": "91a6a5fc-358a-4a72-8400-649d29a106d6"
-            }
-        ],
-        "useful_text": [
-            {
-                "text": "@Интересное",
-                "saved_date": "2025-04-07T23:22:36.558005",
-                "uuid": "178499e4-459d-451e-8db1-1bba05db499b"
-            },
-            {
-                "text": "qwe\n@Интересное",
-                "saved_date": "2025-04-07T23:23:35.280124",
-                "uuid": "4aa25ab9-e1e6-4b8f-b9be-50cf75a96a12"
-            },
-            {
-                "text": "@Интересное",
-                "saved_date": "2025-04-07T23:30:22.152303",
-                "uuid": "b66b206e-86fc-4b0d-8b0b-1c162544a313"
+                "video": "BAACAgIAAxkBAAIkQGf_oPreZsoFDMCmMLcdTZZ7mcl1AAIWaQACkMwAAUiuXY2UcXEebzYE",
+                "saved_date": "2025-04-16T19:22:17.112072",
+                "uuid": "03bd8ce8-dedc-478b-8814-c66f336c7693"
             }
         ]
     },
     "group_buffer_useful": {},
     "group_buffer": {},
-    "product_photos": [
+    "product_photos": [],
+    "product_videos": [
         {
-            "photo": {
-                "photo": "AgACAgIAAxkBAAIed2fz9XcRwLJN9krooZGYKPUmeLr-AAKo-TEbmQmgS_vzUdUwP2rDAQADAgADeQADNgQ",
-                "tags": [
-                    "@товары"
-                ]
-            },
-            "saved_date": "2025-04-07T23:22:49.902246",
-            "uuid": "29c46929-ef3d-4352-a7fd-9c3d37cfd720"
+            "video": "BAACAgIAAxkBAAIkO2f_oO6kjBGnXZWoHZoveD2TFCVdAAITaQACkMwAAUiPsM4CkAN8NTYE",
+            "saved_date": "2025-04-16T19:22:07.384445",
+            "uuid": "cf0d570f-2a88-4bc6-983c-0eb60f7bcd44"
         },
         {
-            "photo": {
-                "photo": "AgACAgIAAxkBAAIed2fz9XcRwLJN9krooZGYKPUmeLr-AAKo-TEbmQmgS_vzUdUwP2rDAQADAgADeQADNgQ",
-                "tags": [
-                    "@товары"
-                ]
-            },
-            "saved_date": "2025-04-07T23:22:49.903211",
-            "uuid": "d41f38fd-663a-4aed-b16e-1963455faa4f"
-        },
-        {
-            "photo": {
-                "photo": "AgACAgIAAxkBAAIed2fz9XcRwLJN9krooZGYKPUmeLr-AAKo-TEbmQmgS_vzUdUwP2rDAQADAgADeQADNgQ",
-                "tags": [
-                    "@товары"
-                ]
-            },
-            "saved_date": "2025-04-07T23:22:49.903883",
-            "uuid": "6437f976-2320-456a-887d-0be124d5c8e5"
-        },
-        {
-            "photo": {
-                "photo": "AgACAgIAAxkBAAIed2fz9XcRwLJN9krooZGYKPUmeLr-AAKo-TEbmQmgS_vzUdUwP2rDAQADAgADeQADNgQ",
-                "tags": [
-                    "@товары"
-                ]
-            },
-            "saved_date": "2025-04-07T23:22:49.904445",
-            "uuid": "3dbd9c10-a85e-43bb-b708-f8dec8116e8a"
-        },
-        {
-            "photo": {
-                "photo": "AgACAgIAAxkBAAIed2fz9XcRwLJN9krooZGYKPUmeLr-AAKo-TEbmQmgS_vzUdUwP2rDAQADAgADeQADNgQ",
-                "tags": [
-                    "@товары"
-                ]
-            },
-            "saved_date": "2025-04-07T23:22:49.905032",
-            "uuid": "1d463909-8149-48f4-8ca5-1cd0f60d9fe8"
-        },
-        {
-            "photo": {
-                "photo": "AgACAgIAAxkBAAIed2fz9XcRwLJN9krooZGYKPUmeLr-AAKo-TEbmQmgS_vzUdUwP2rDAQADAgADeQADNgQ",
-                "tags": [
-                    "@товары"
-                ]
-            },
-            "saved_date": "2025-04-07T23:22:49.905618",
-            "uuid": "af919c30-97d9-4510-aa1d-262fdda374f5"
-        },
-        {
-            "photo": {
-                "photo": "AgACAgIAAxkBAAIed2fz9XcRwLJN9krooZGYKPUmeLr-AAKo-TEbmQmgS_vzUdUwP2rDAQADAgADeQADNgQ",
-                "tags": [
-                    "@товары"
-                ]
-            },
-            "saved_date": "2025-04-07T23:22:49.906195",
-            "uuid": "bda13518-97dd-4b00-9251-7a9168fee70d"
-        },
-        {
-            "photo": {
-                "photo": "AgACAgIAAxkBAAIed2fz9XcRwLJN9krooZGYKPUmeLr-AAKo-TEbmQmgS_vzUdUwP2rDAQADAgADeQADNgQ",
-                "tags": [
-                    "@товары"
-                ]
-            },
-            "saved_date": "2025-04-07T23:22:49.906870",
-            "uuid": "e8fe5beb-98bb-418f-be65-1346ba76fdce"
-        },
-        {
-            "photo": {
-                "photo": "AgACAgIAAxkBAAIed2fz9XcRwLJN9krooZGYKPUmeLr-AAKo-TEbmQmgS_vzUdUwP2rDAQADAgADeQADNgQ",
-                "tags": [
-                    "@товары"
-                ]
-            },
-            "saved_date": "2025-04-07T23:22:49.907529",
-            "uuid": "6aa4db93-b61e-431b-8048-0099e5dc2cfb"
-        },
-        {
-            "photo": {
-                "photo": "AgACAgIAAxkBAAIed2fz9XcRwLJN9krooZGYKPUmeLr-AAKo-TEbmQmgS_vzUdUwP2rDAQADAgADeQADNgQ",
-                "tags": [
-                    "@товары"
-                ]
-            },
-            "saved_date": "2025-04-07T23:22:49.908213",
-            "uuid": "f731aced-4876-44f3-90d3-172ff9839335"
-        },
-        {
-            "photo": {
-                "photo": "AgACAgIAAxkBAAIed2fz9XcRwLJN9krooZGYKPUmeLr-AAKo-TEbmQmgS_vzUdUwP2rDAQADAgADeQADNgQ",
-                "tags": [
-                    "@товары"
-                ]
-            },
-            "saved_date": "2025-04-07T23:22:50.059317",
-            "uuid": "3cf0d30b-dc22-4c8d-8714-a5a4e1514ca6"
-        },
-        {
-            "photo": {
-                "photo": "AgACAgIAAxkBAAIed2fz9XcRwLJN9krooZGYKPUmeLr-AAKo-TEbmQmgS_vzUdUwP2rDAQADAgADeQADNgQ",
-                "tags": [
-                    "@товары"
-                ]
-            },
-            "saved_date": "2025-04-07T23:22:50.060534",
-            "uuid": "3add6a5f-9959-40eb-9020-902682ac5e17"
-        },
-        {
-            "photo": {
-                "photo": "AgACAgIAAyEFAASZ3ns6AAIEF2fz_YSblVwKgZu0t1U6MY8mcPExAAJi-DEbWluhSyxs9ddcKJi1AQADAgADeAADNgQ",
-                "tags": [
-                    "@товары"
-                ]
-            },
-            "saved_date": "2025-04-07T23:29:58.007922",
-            "uuid": "f13e6499-cf93-4b6d-b476-e500dda9e062"
-        },
-        {
-            "photo": {
-                "photo": "AgACAgIAAyEFAASZ3ns6AAIEGGfz_YTSsrISZv6FYLBvf4Mr1cWSAAJj-DEbWluhS6cvKVHJJgRzAQADAgADeQADNgQ",
-                "tags": [
-                    "@товары"
-                ]
-            },
-            "saved_date": "2025-04-07T23:29:58.009093",
-            "uuid": "7e191980-7803-4607-9d53-2db534262dc7"
+            "video": "BAACAgIAAxkBAAIkPGf_oO4f8N6iFdta7cyF_J3ShB5lAAIUaQACkMwAAUiW7_T7uhHYtDYE",
+            "saved_date": "2025-04-16T19:22:07.385165",
+            "uuid": "5c75811e-d5b5-4a32-8b41-c801884ea312"
         }
     ]
 }
