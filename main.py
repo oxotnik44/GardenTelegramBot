@@ -1,4 +1,3 @@
-import asyncio
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters
 from config import TOKEN
 from handlers import handle_text, button_callback, products, useful, question, start
@@ -46,9 +45,9 @@ async def handle_video_with_tag(update, context):
             first_video_has_tag = False
         else:
             first_video_has_tag = False
-
-        print(
-            f"Видео без явного текста до этого. Обработка через caption. ID: {update.message.video.file_id}")
+            print(
+                f"⚠️ Видео не содержит тега — пропускаем. ID: {update.message.video.file_id}")
+            return  # 👉 Не вызываем handle_video, если тега нет
 
     await handle_video(update, context, single_tag=tag)
 
