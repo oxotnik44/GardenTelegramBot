@@ -1,5 +1,5 @@
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters
-from config import TOKEN
+from config import ALLOWED_USER_IDS, TOKEN
 from handlers import handle_text, button_callback, products, useful, question, start
 from modules.photo_handler import handle_photo
 from modules.useful_handler import handle_photo_useful
@@ -14,19 +14,22 @@ pending_interesting = False
 # Глобальные переменные для состояния видео
 first_video_has_tag = None
 
+# Список разрешённых пользователей
+
 
 async def handle_video_with_tag(update, context):
-    """
-    Обрабатывает видео и проверяет наличие тегов @товары или @интересное.
-    Вызывает handle_video с передачей конкретного тега.
-    """
     global first_video_has_tag, pending_tag, pending_interesting
+
+    # Проверка разрешения по user_id
+    user_id = update.effective_user.id
+    if user_id not in ALLOWED_USER_IDS:
+        print(f"Пользователь {user_id} не имеет права отправлять видео.")
+        return
 
     message_text = update.message.caption.lower() if update.message.caption else ""
 
     tag = None
 
-    # При наличии флага pending_tag/pending_interesting используем соответствующий тег
     if pending_tag:
         tag = "@товары"
         print(
@@ -36,7 +39,6 @@ async def handle_video_with_tag(update, context):
         print(
             f"Видео после текста с @интересное. Обработка с single_tag='@интересное'. ID: {update.message.video.file_id}")
     else:
-        # Если нет флагов, ищем тег в caption
         if "@товары" in message_text:
             tag = "@товары"
             first_video_has_tag = True
@@ -47,7 +49,7 @@ async def handle_video_with_tag(update, context):
             first_video_has_tag = False
             print(
                 f"⚠️ Видео не содержит тега — пропускаем. ID: {update.message.video.file_id}")
-            return  # 👉 Не вызываем handle_video, если тега нет
+            return
 
     await handle_video(update, context, single_tag=tag)
 
@@ -67,7 +69,6 @@ async def text_message_handler(update, context):
         pending_interesting = True
         pending_tag = False
     else:
-        # если ни один тег не найден — сбрасываем оба
         pending_tag = False
         pending_interesting = False
         print("Сообщение не содержит тегов, сброс флагов")
@@ -76,12 +77,13 @@ async def text_message_handler(update, context):
 
 
 async def handle_photo_with_tag(update, context):
-    """
-    Обрабатывает фото и проверяет наличие тегов @товары или @интересное.
-    Если в подписи фото указан явный тег, значение first_photo_has_tag обновляется.
-    Флаги pending_tag и pending_interesting сохраняются до изменения новым текстом.
-    """
     global first_photo_has_tag, pending_tag, pending_interesting
+
+    # Проверка разрешения по user_id
+    user_id = update.effective_user.id
+    if user_id not in ALLOWED_USER_IDS:
+        print(f"Пользователь {user_id} не имеет права отправлять фото.")
+        return
 
     message_text = update.message.caption.lower() if update.message.caption else ""
 
@@ -99,7 +101,6 @@ async def handle_photo_with_tag(update, context):
         elif "@интересное" in message_text:
             first_photo_has_tag = False
 
-        # Если тег не определён – задаём значение по умолчанию (например, False)
         if first_photo_has_tag is None:
             first_photo_has_tag = False
 
@@ -111,7 +112,6 @@ async def handle_photo_with_tag(update, context):
             print(
                 f"Тег @товары не найден. Фото в handle_photo_useful. ID: {update.message.photo[-1].file_id}")
             await handle_photo_useful(update, context)
-    # Флаги pending_tag и pending_interesting не изменяются здесь
 
 
 def main() -> None:
