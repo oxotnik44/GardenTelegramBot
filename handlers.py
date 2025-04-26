@@ -176,7 +176,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         for idx, q in enumerate(questions):
             if q.get("message_id") == user_msg_id:
                 # Получаем данные о текущем вопросе
-                original_chat_id = q.get("chat_id", -1002581494586)
+                original_chat_id = q.get("chat_id", '@tany3201chat')
                 question_text = q.get("text", "Нет текста вопроса")
                 question_uuid = q.get("uuid")
                 try:
