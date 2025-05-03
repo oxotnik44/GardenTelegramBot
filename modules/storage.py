@@ -16,6 +16,7 @@ group_buffer_useful = {}
 group_buffer = {}
 product_photos = []   # Список для фотографий товаров
 product_videos = []   # Список для видео товаров
+product_texts = []   # Список для видео товаров
 
 
 def default_serializer(obj):
@@ -25,10 +26,6 @@ def default_serializer(obj):
 
 
 def delete_record_by_storage(tag, record_uuid):
-    """
-    Удаляет запись по uuid из указанного тега (question, useful, product).
-    Сохраняет обновлённые данные в файл.
-    """
     load_storage_data()
 
     def remove_by_uuid(records):
@@ -36,23 +33,14 @@ def delete_record_by_storage(tag, record_uuid):
 
     if tag == "question":
         user_data["questions"] = remove_by_uuid(user_data["questions"])
-        print(f"🗑 Удалён вопрос с uuid {record_uuid}")
-
     elif tag == "useful":
-        user_data_useful["useful_photo"] = remove_by_uuid(
-            user_data_useful["useful_photo"])
-        user_data_useful["useful_text"] = remove_by_uuid(
-            user_data_useful["useful_text"])
-        user_data_useful["useful_video"] = remove_by_uuid(
-            user_data_useful.get("useful_video", []))
-        print(f"🗑 Удалены полезные данные с uuid {record_uuid} (если были)")
-
+        for key in ("useful_photo", "useful_text", "useful_video"):
+            user_data_useful[key] = remove_by_uuid(user_data_useful[key])
     elif tag == "product":
-        global product_photos, product_videos
+        global product_photos, product_videos, product_texts
         product_photos = remove_by_uuid(product_photos)
         product_videos = remove_by_uuid(product_videos)
-        print(f"🗑 Удалена запись товара с uuid {record_uuid}")
-
+        product_texts = remove_by_uuid(product_texts)
     else:
         print(f"⚠️ Неизвестный тег {tag}")
         return
@@ -61,67 +49,48 @@ def delete_record_by_storage(tag, record_uuid):
 
 
 def load_storage_data():
-    """
-    Загружает данные из файла STORAGE_FILE и обновляет глобальные переменные.
-    Если файл не найден, остаются значения по умолчанию.
-    """
-    global user_data, user_data_useful, group_buffer_useful, group_buffer, product_photos, product_videos
+    global user_data, user_data_useful, group_buffer_useful, group_buffer
+    global product_photos, product_videos, product_texts
+
     if os.path.exists(STORAGE_FILE):
         try:
             with open(STORAGE_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            user_data = data.get("user_data", {"photos": [], "questions": []})
-            user_data_useful = data.get("user_data_useful", {
-                "useful_photo": [],
-                "useful_text": [],
-                "useful_video": []
-            })
-            group_buffer_useful = data.get("group_buffer_useful", {})
-            group_buffer = data.get("group_buffer", {})
-            product_photos = data.get("product_photos", [])
-            product_videos = data.get("product_videos", [])
-            # Преобразуем строки дат обратно в datetime, если требуется для фильтрации
-            for q in user_data.get("questions", []):
-                if isinstance(q.get("saved_date"), str):
-                    try:
-                        q["saved_date"] = datetime.datetime.fromisoformat(
-                            q["saved_date"])
-                    except Exception:
-                        pass
-            for key in ("useful_photo", "useful_text", "useful_video"):
-                for r in user_data_useful.get(key, []):
-                    if isinstance(r.get("saved_date"), str):
-                        try:
-                            r["saved_date"] = datetime.datetime.fromisoformat(
-                                r["saved_date"])
-                        except Exception:
-                            pass
-            for p in product_photos:
-                if isinstance(p.get("saved_date"), str):
-                    try:
-                        p["saved_date"] = datetime.datetime.fromisoformat(
-                            p["saved_date"])
-                    except Exception:
-                        pass
-            for v in product_videos:
-                if isinstance(v.get("saved_date"), str):
-                    try:
-                        v["saved_date"] = datetime.datetime.fromisoformat(
-                            v["saved_date"])
-                    except Exception:
-                        pass
         except Exception as e:
-            print(f"⚠️ Ошибка при загрузке данных: {e}")
+            print(f"⚠️ Ошибка при чтении {STORAGE_FILE}: {e}")
+            return
+
+        user_data = data.get("user_data", {"photos": [], "questions": []})
+        user_data_useful = data.get("user_data_useful", {
+            "useful_photo": [], "useful_text": [], "useful_video": []
+        })
+        group_buffer_useful = data.get("group_buffer_useful", {})
+        group_buffer = data.get("group_buffer", {})
+        product_photos = data.get("product_photos", [])
+        product_videos = data.get("product_videos", [])
+        product_texts = data.get("product_texts", [])
+
+        def parse_dates(records):
+            for r in records:
+                d = r.get("saved_date")
+                if isinstance(d, str):
+                    try:
+                        r["saved_date"] = datetime.datetime.fromisoformat(d)
+                    except:
+                        pass
+
+        parse_dates(user_data.get("questions", []))
+        for key in ("useful_photo", "useful_text", "useful_video"):
+            parse_dates(user_data_useful.get(key, []))
+        parse_dates(product_photos)
+        parse_dates(product_videos)
+        parse_dates(product_texts)
     else:
         print(
             f"⚠️ Файл {STORAGE_FILE} не найден. Используются значения по умолчанию.")
 
 
 def save_storage_data():
-    """
-    Сохраняет текущие глобальные переменные в файл STORAGE_FILE.
-    При сохранении объекты datetime сериализуются в ISO-формат.
-    """
     data = {
         "user_data": user_data,
         "user_data_useful": user_data_useful,
@@ -129,33 +98,28 @@ def save_storage_data():
         "group_buffer": group_buffer,
         "product_photos": product_photos,
         "product_videos": product_videos,
+        "product_texts": product_texts,
     }
     try:
         with open(STORAGE_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f, default=default_serializer,
                       ensure_ascii=False, indent=4)
     except Exception as e:
-        print(f"⚠️ Ошибка при сохранении данных: {e}")
+        print(f"⚠️ Ошибка при сохранении {STORAGE_FILE}: {e}")
 
 
 def filter_old_records(records, days=30):
-    """
-    Удаляет записи старше указанного количества дней.
-    Если поле saved_date представлено строкой, пытается преобразовать его в datetime.
-    При изменении списка вызывает сохранение данных в файл.
-    """
     now = datetime.datetime.now()
     filtered = []
     for r in records:
-        saved_date = r.get("saved_date")
-        if isinstance(saved_date, str):
+        d = r.get("saved_date")
+        if isinstance(d, str):
             try:
-                saved_date = datetime.datetime.fromisoformat(saved_date)
-            except Exception:
+                d = datetime.datetime.fromisoformat(d)
+            except:
                 continue
-        if isinstance(saved_date, datetime.datetime):
-            if (now - saved_date).days <= days:
-                filtered.append(r)
+        if isinstance(d, datetime.datetime) and (now - d).days <= days:
+            filtered.append(r)
     if len(filtered) != len(records):
         records[:] = filtered
         save_storage_data()
@@ -207,14 +171,26 @@ def save_user_message(user_id, item, tag):
             f"✅ Сохранён {'фото' if key == 'useful_photo' else ('текст' if key == 'useful_text' else 'видео')}: {value}")
 
     elif tag == "product":
-        # Определяем тип товара: фото или видео
-        if isinstance(item, dict) and "video" in item:
+
+        # Сохраняем текст продукта, если он есть
+        if item.get("type") == "text" and "text" in item:
+            product_texts.append({
+                "text":       item["text"],
+                "message_id": item.get("message_id"),
+                "saved_date": now,
+                "uuid":       record_uuid
+            })
+            print("✅ Сохранён текст продукта")
+
+        # Иначе — как раньше, фото или видео
+        elif isinstance(item, dict) and "video" in item:
             product_videos.append({
                 "video": item["video"],
                 "saved_date": now,
                 "uuid": record_uuid
             })
             print("✅ Сохранено видео продукта")
+
         elif isinstance(item, dict) and "photo" in item:
             product_photos.append({
                 "photo": item["photo"],
@@ -222,14 +198,16 @@ def save_user_message(user_id, item, tag):
                 "uuid": record_uuid
             })
             print("✅ Сохранена фотография продукта")
+
         else:
-            # Если передан не словарь, считаем, что это фотография
+            # Если передан не словарь — считаем, что это фото
             product_photos.append({
                 "photo": item,
                 "saved_date": now,
                 "uuid": record_uuid
             })
             print("✅ Сохранена фотография продукта")
+
     else:
         print(f"⚠️ Неизвестный тег {tag}")
         return
@@ -277,8 +255,8 @@ def get_user_message(tag, filter_tag=None):
         # Фильтруем устаревшие записи для фотографий и видео
         filter_old_records(product_photos)
         filter_old_records(product_videos)
+        filter_old_records(product_texts)
         save_storage_data()
-
         # Объединяем записи в один список
         products = []
         for p in product_photos:
@@ -295,6 +273,15 @@ def get_user_message(tag, filter_tag=None):
                 "saved_date": v["saved_date"],
                 "uuid": v["uuid"]
             })
+        for t in product_texts:
+            products.append({
+                "type": "text",
+                "media": t["text"],
+                "message_id": t.get("message_id"),
+                "saved_date": t["saved_date"],
+                "uuid": t["uuid"]
+            })
+
         return products
 
     return []

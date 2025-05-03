@@ -1,6 +1,7 @@
 from telegram import InputMediaPhoto, Update
 import telegram
 from telegram.ext import ContextTypes
+from modules.photo_handler import process_interesting_info_message_product
 from modules.question_handler import delete_question, show_questions, answer_questions, view_later
 from config import ALLOWED_USER_IDS
 from modules.useful_handler import process_interesting_info_message
@@ -69,38 +70,57 @@ async def send_media_group(bot, chat_id, file_ids, batch_size=10, delay=2):
 
 
 async def products(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    user_id = update.message.from_user.id  # Личный чат с ботом
+    user_id = update.message.from_user.id
     try:
         await update.message.delete()
     except Exception:
         pass
 
-    # Получаем объединённый список товаров
+    # Получаем отсортированный по saved_date список товаров
     products_list = get_user_message("product")
+    # на всякий случай убедимся, что они отсортированы
+    products_list.sort(key=lambda x: x["saved_date"])
 
-    if products_list:
-        # Разбиваем список на фото и видео для отправки
-        photo_ids = [item["media"]
-                     for item in products_list if item["type"] == "photo"]
-        video_ids = [item["media"]
-                     for item in products_list if item["type"] == "video"]
+    if not products_list:
+        await context.bot.send_message(chat_id=user_id,
+                                       text="Нет новых товаров с тегами.")
+        return
 
-        if photo_ids:
-            await send_media_group(context.bot, user_id, photo_ids)
+    i = 0
+    n = len(products_list)
+    while i < n:
+        item = products_list[i]
 
-        if video_ids:
-            # Отправка видео можно реализовать по аналогии с фото,
-            # например, отправляя каждое видео отдельным сообщением или группируя их
-            for video in video_ids:
-                try:
-                    await context.bot.send_video(chat_id=user_id, video=video)
-                except Exception as e:
-                    print(f"Ошибка при отправке видео: {e}")
-    else:
-        await context.bot.send_message(
-            chat_id=user_id,
-            text="Нет новых товаров с тегами."
-        )
+        if item["type"] == "photo":
+            # Собираем подряд идущие фото в одну группу
+            group = []
+            while i < n and products_list[i]["type"] == "photo":
+                group.append(products_list[i]["media"])
+                i += 1
+            # Отправляем эту группу
+            await send_media_group(context.bot, user_id, group)
+
+        elif item["type"] == "video":
+            # Отправляем одно видео и идём дальше
+            try:
+                await context.bot.send_video(chat_id=user_id,
+                                             video=item["media"])
+            except Exception as e:
+                print(f"Ошибка при отправке видео: {e}")
+            i += 1
+
+        elif item["type"] == "text":
+            # Отправляем текст и идём дальше
+            try:
+                await context.bot.send_message(chat_id=user_id,
+                                               text=item["media"])
+            except Exception as e:
+                print(f"Ошибка при отправке текста товара: {e}")
+            i += 1
+
+        else:
+            # На случай неизвестного типа
+            i += 1
 
 
 async def useful(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -117,6 +137,7 @@ async def useful(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         pass
 
     useful_data = get_user_message("useful")
+    useful_data.sort(key=lambda x: x["saved_date"])
 
     # Проверяем, есть ли сохранённые данные хотя бы по одному из типов
     if not useful_data or (
@@ -165,6 +186,9 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     if "@интересное" in update.message.text.lower():
         await process_interesting_info_message(update)
         return
+    if "@товары" in update.message.text.lower():
+        await process_interesting_info_message_product(update)
+        return
 
     user_data_ctx = context.user_data
     user_msg_id = user_data_ctx.pop("current_question_msg_id", None)
@@ -176,7 +200,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         for idx, q in enumerate(questions):
             if q.get("message_id") == user_msg_id:
                 # Получаем данные о текущем вопросе
-                original_chat_id = q.get("chat_id", '@tany3201chat')
+                original_chat_id = q.get("chat_id", -1002581494586)
                 question_text = q.get("text", "Нет текста вопроса")
                 question_uuid = q.get("uuid")
                 try:

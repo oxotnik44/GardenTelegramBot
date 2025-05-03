@@ -1,6 +1,31 @@
 import datetime
 import asyncio
 from modules.storage import save_user_message, group_buffer
+from telegram import Update
+import re
+
+
+async def process_interesting_info_message_product(update: Update):
+    """
+    Обрабатывает сообщение с тегом @товары, сохраняет его как текстовое сообщение.
+    """
+    # Берём оригинальный текст
+    raw_text = update.message.text or ""
+    # Удаляем все вхождения @товары (независимо от регистра)
+    message_text = re.sub(r'@товары', '', raw_text,
+                          flags=re.IGNORECASE).strip()
+
+    # Если после удаления тега текст пуст — не сохраняем
+    if not message_text:
+        print("Пустой текст после удаления тега @товары. Сообщение не сохранено.")
+        return
+
+    item = {
+        "text":       message_text,
+        "message_id": update.message.message_id,
+        "type":       "text"
+    }
+    save_user_message(update.message.from_user.id, item, tag="product")
 
 
 async def handle_photo(update, context, force_tag: bool = False):
