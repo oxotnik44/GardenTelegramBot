@@ -8,6 +8,7 @@ from modules.useful_handler import process_interesting_info_message
 from modules.storage import get_user_message, save_user_message
 from telegram.error import TimedOut
 import asyncio
+from datetime import datetime
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -48,138 +49,98 @@ async def question(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await show_questions(update, context)
 
 
-async def send_media_group(bot, chat_id, file_ids, batch_size=10, delay=2):
-    """
-    Отправляет фото группами (альбомами) по batch_size элементов.
-    После отправки каждой группы ждёт delay секунд.
-    """
-    for i in range(0, len(file_ids), batch_size):
-        # Формируем группу из batch_size фото
-        media_group = [InputMediaPhoto(media=file_id)
-                       for file_id in file_ids[i:i+batch_size]]
+async def send_media_group(bot, chat_id, files, batch_size=10, delay=2):
+    for i in range(0, len(files), batch_size):
+        group = [InputMediaPhoto(media=f) for f in files[i: i + batch_size]]
         try:
-            await bot.send_media_group(chat_id=chat_id, media=media_group)
+            await bot.send_media_group(chat_id, group)
         except TimedOut:
-            print("Запрос превысил время ожидания. Повторная попытка отправки группы.")
-            # Небольшая задержка перед повторной попыткой
             await asyncio.sleep(1)
-            await bot.send_media_group(chat_id=chat_id, media=media_group)
+            await bot.send_media_group(chat_id, group)
+        if delay:
+            await asyncio.sleep(delay)
 
-        # После отправки каждой группы ждем указанное время
-        await asyncio.sleep(delay)
 
-
-async def products(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    user_id = update.message.from_user.id
-    try:
-        await update.message.delete()
-    except Exception:
-        pass
-
-    # Получаем отсортированный по saved_date список товаров
-    products_list = get_user_message("product")
-    # на всякий случай убедимся, что они отсортированы
-    products_list.sort(key=lambda x: x["saved_date"])
-
-    if not products_list:
-        await context.bot.send_message(chat_id=user_id,
-                                       text="Нет новых товаров с тегами.")
-        return
-
-    i = 0
-    n = len(products_list)
+async def send_items_sorted(bot, chat_id, items):
+    items.sort(key=lambda x: x.get("saved_date") or datetime.min)
+    i, n = 0, len(items)
     while i < n:
-        item = products_list[i]
-
-        if item["type"] == "photo":
-            # Собираем подряд идущие фото в одну группу
-            group = []
-            while i < n and products_list[i]["type"] == "photo":
-                group.append(products_list[i]["media"])
+        it = items[i]
+        if it["type"] == "photo":
+            grp = []
+            while i < n and items[i]["type"] == "photo":
+                grp.append(items[i]["media"])
                 i += 1
-            # Отправляем эту группу
-            await send_media_group(context.bot, user_id, group)
-
-        elif item["type"] == "video":
-            # Отправляем одно видео и идём дальше
-            try:
-                await context.bot.send_video(chat_id=user_id,
-                                             video=item["media"])
-            except Exception as e:
-                print(f"Ошибка при отправке видео: {e}")
+            await send_media_group(bot, chat_id, grp)
+        elif it["type"] == "video":
+            await bot.send_video(chat_id=chat_id, video=it["media"])
             i += 1
-
-        elif item["type"] == "text":
-            # Отправляем текст и идём дальше
-            try:
-                await context.bot.send_message(chat_id=user_id,
-                                               text=item["media"])
-            except Exception as e:
-                print(f"Ошибка при отправке текста товара: {e}")
-            i += 1
-
-        else:
-            # На случай неизвестного типа
+        else:  # text
+            await bot.send_message(chat_id=chat_id, text=it["media"])
             i += 1
 
 
-async def useful(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """
-    Обрабатывает команду /useful для вывода сохранённых сообщений с тегом @Интересное.
-    Данные берутся из хранилища с ключами "useful_photo", "useful_text" и "useful_video".
-    """
-    user_id = update.message.from_user.id  # Личный чат с ботом
-
-    # Удаляем сообщение с командой, если у бота есть соответствующие права
+async def products(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         await update.message.delete()
-    except Exception:
+    except:
+        pass
+    items = get_user_message("product")
+    if items:
+        await send_items_sorted(context.bot, update.effective_chat.id, items)
+    else:
+        await context.bot.send_message(update.effective_chat.id, "Нет новых товаров.")
+
+
+async def useful(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        await update.message.delete()
+    except:
         pass
 
-    useful_data = get_user_message("useful")
-    useful_data.sort(key=lambda x: x["saved_date"])
+    # возвращает dict с keys useful_photo, useful_video, useful_text
+    raw = get_user_message("useful")
+    items = []
 
-    # Проверяем, есть ли сохранённые данные хотя бы по одному из типов
-    if not useful_data or (
-        not useful_data.get("useful_text") and
-        not useful_data.get("useful_photo") and
-        not useful_data.get("useful_video")
-    ):
-        await context.bot.send_message(
-            chat_id=user_id,
-            text="Нет сохранённых сообщений с тегом @Интересное."
-        )
+    # Фото
+    for p in raw.get("useful_photo", []):
+        if isinstance(p, dict):
+            media = p.get("photo")
+            date = p.get("saved_date")
+        else:
+            media = p
+            date = None
+        items.append({"type": "photo", "media": media, "saved_date": date})
+
+    # Видео
+    for v in raw.get("useful_video", []):
+        if isinstance(v, dict):
+            media = v.get("video")
+            date = v.get("saved_date")
+        else:
+            media = v
+            date = None
+        items.append({"type": "video", "media": media, "saved_date": date})
+
+    # Тексты
+    for t in raw.get("useful_text", []):
+        if isinstance(t, dict):
+            text = t.get("text", "")
+            date = t.get("saved_date")
+        else:
+            text = t
+            date = None
+        cleaned = text.replace("@Интересное", "").strip()
+        if cleaned:
+            items.append(
+                {"type": "text", "media": cleaned, "saved_date": date})
+
+    if not items:
+        await context.bot.send_message(update.effective_chat.id, "Нет сохранённых @Интересное.")
         return
 
-    # Обработка текстовых сообщений
-    text_messages = useful_data.get("useful_text", [])
-    if text_messages:
-        for item in text_messages:
-            text = item.get("text", "") if isinstance(item, dict) else item
-            cleaned_text = text.replace("@Интересное", "").strip()
-            if cleaned_text:
-                await context.bot.send_message(chat_id=user_id, text=cleaned_text)
-
-    # Обработка фото с разбиением на альбомы
-    photo_items = useful_data.get("useful_photo", [])
-    photo_ids = []
-    for item in photo_items:
-        if isinstance(item, dict) and "photo" in item:
-            photo_ids.append(item["photo"])
-        elif isinstance(item, str):
-            photo_ids.append(item)
-    if photo_ids:
-        await send_media_group(context.bot, user_id, photo_ids)
-
-    # Обработка видео
-    video_items = useful_data.get("useful_video", [])
-    for item in video_items:
-        video = item.get("video") if isinstance(item, dict) else item
-        if video:
-            try:
-                await context.bot.send_video(chat_id=user_id, video=video)
-            except Exception as e:
-                print(f"Ошибка при отправке видео: {e}")
+    # Отправка в хронологическом порядке
+    await send_items_sorted(context.bot, update.effective_chat.id, items)
 
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

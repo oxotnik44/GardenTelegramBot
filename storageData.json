@@ -5,209 +5,26 @@
     },
     "user_data_useful": {
         "useful_photo": [],
-        "useful_text": [
-            {
-                "text": "@Интересное",
-                "saved_date": "2025-05-03T14:05:02.511756",
-                "uuid": "4d6033eb-bef2-4bf3-8837-eceda4e845b2"
-            }
-        ],
+        "useful_text": [],
         "useful_video": [
-            {
-                "video": "BAACAgIAAxkBAAIlfmgVwCUWT7hSRtDrIjBbYo5wZNoBAALMawAC-DWwSEhnc4B3JBwYNgQ",
-                "saved_date": "2025-05-03T14:05:10.261808",
-                "uuid": "1b8bbfd1-5bba-4be7-bec5-e53d4a262516"
-            },
             {
                 "video": "BAACAgIAAxkBAAIlf2gVwCXQXy0OQzK6adxQf0M7DSPHAALNawAC-DWwSBk-2b9mzpAPNgQ",
                 "saved_date": "2025-05-03T14:05:10.263505",
                 "uuid": "f03579ff-9215-434b-a820-a4e2ded4c31e"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIlgGgVwCWWrUlBaI-LfUM3j9adfwbFAAKmaQAC5Y-wSJRVe2f380vYNgQ",
-                "saved_date": "2025-05-03T14:05:10.264705",
-                "uuid": "f7bbce99-c321-46a1-83c7-5d60a876d60c"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIlgWgVwCX60uLM1jycFWMREniqa1B3AALPawAC-DWwSK-C4K-XhpSFNgQ",
-                "saved_date": "2025-05-03T14:05:10.265519",
-                "uuid": "8ae694ff-9303-4919-973f-f25567cec978"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIlgmgVwCVG9U4P9yrJsfzzbbJRgMaEAALQawAC-DWwSG5DCJCi2385NgQ",
-                "saved_date": "2025-05-03T14:05:10.267252",
-                "uuid": "5e29ab53-3dad-47e9-8513-0ebc62f55d2b"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIlg2gVwCV_1OzP-hr7uBehkd32JDYrAALRawAC-DWwSDP-YkZoyEd9NgQ",
-                "saved_date": "2025-05-03T14:05:10.269488",
-                "uuid": "b6b26b2d-4aae-4a43-bd0f-a75339b89fd3"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIlhGgVwCWKUhzg-VyQAodHjmA65kLVAAKnaQAC5Y-wSGBJ7YiPaA3QNgQ",
-                "saved_date": "2025-05-03T14:05:10.270460",
-                "uuid": "340e429c-f397-489f-a7ec-4d033b24fef6"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIlhWgVwCUnu5TVb5kLQchLJ5uLTlNxAALSawAC-DWwSAKpxVYWKo2UNgQ",
-                "saved_date": "2025-05-03T14:05:10.271704",
-                "uuid": "a5179da4-affb-46f2-917e-ccd16d6107f4"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIlhmgVwCVz812-M9HAC-C3YAWD9S50AALTawAC-DWwSNMFY5E2DR6iNgQ",
-                "saved_date": "2025-05-03T14:05:10.273083",
-                "uuid": "043a6e6d-d5e4-4769-8cc8-3b2ff893a198"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIlh2gVwCVux5VuRdOUHQG5Y85KhCJjAALUawAC-DWwSBxgnzepApKaNgQ",
-                "saved_date": "2025-05-03T14:05:10.274168",
-                "uuid": "295516e7-89d1-4077-ab02-6984fef7dc7e"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIliGgVwCiKE0xMcXeLwcmnI2A_P_-7AALVawAC-DWwSHn-jym51t3-NgQ",
-                "saved_date": "2025-05-03T14:05:13.594230",
-                "uuid": "bb10b169-58b8-41f4-9f45-4ce74d03d807"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIliWgVwCgNy5XUKFCEaSbNA6rXyT-pAALWawAC-DWwSKIeLOXmj1xONgQ",
-                "saved_date": "2025-05-03T14:05:13.595786",
-                "uuid": "520ae2f2-182d-43fd-beee-58e2a2861582"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIlimgVwCiWTjKk8VbUKSJf8HgAAVH2QwAC12sAAvg1sEjf1ZV_VYqU-jYE",
-                "saved_date": "2025-05-03T14:05:13.596720",
-                "uuid": "5b8f6275-4158-429e-bea6-cbb9fa2f6db5"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIli2gVwCjunJhnjJ7qAn94eqmzSshMAAKoaQAC5Y-wSItHRkgEyM52NgQ",
-                "saved_date": "2025-05-03T14:05:13.597704",
-                "uuid": "deb73d71-19ad-4ee0-a07f-581494d5e2dd"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIljGgVwCgStZH__Jw-qE6bzwABZ1D_VgAC2GsAAvg1sEg0fxjWugs_xDYE",
-                "saved_date": "2025-05-03T14:05:13.598575",
-                "uuid": "b9ed76d0-9660-408b-bf52-540429d6ec23"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIljWgVwChZfdlE1FZVTgH5xVDaOB5dAALZawAC-DWwSOEGj9kObD1ANgQ",
-                "saved_date": "2025-05-03T14:05:13.599337",
-                "uuid": "81e17f5d-111a-4b75-bc03-963601b38a93"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIljmgVwCiQePBs979c5Y5ZVNyzfbUdAALaawAC-DWwSM-olkQW4I1tNgQ",
-                "saved_date": "2025-05-03T14:05:13.600191",
-                "uuid": "36ff49fb-3a9d-4af8-a948-c0013af0e37b"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIlj2gVwChqBs2DUc-z-evymGnDQhoNAALbawAC-DWwSFXSAinxHljZNgQ",
-                "saved_date": "2025-05-03T14:05:13.601261",
-                "uuid": "818b9097-740b-418a-a47f-5dab1e4e95e3"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIlkGgVwCitG-pdJQUCo3q8KF0w6cbnAALcawAC-DWwSK3dgokxAAEehjYE",
-                "saved_date": "2025-05-03T14:05:13.602803",
-                "uuid": "ced477c8-4153-4a3b-aed3-01e02b7ab069"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIlkWgVwCgjF8VHXCc_J2bX2BKNEgxfAALeawAC-DWwSFbuEqyV6W2CNgQ",
-                "saved_date": "2025-05-03T14:05:13.604255",
-                "uuid": "fe3a7fc8-cca3-493c-a7bb-6f770d331ede"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIlkmgVwClItR9B-hoiQviWs7n7UpFzAALdawAC-DWwSHlcqSiCEZI3NgQ",
-                "saved_date": "2025-05-03T14:05:14.157549",
-                "uuid": "02f00137-dbf9-4ae2-bf6c-f60d96ebc2dc"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIlk2gVwClHV_GQ2zLVz2FcoSIsM6EwAALfawAC-DWwSOV4LPjWPi6ENgQ",
-                "saved_date": "2025-05-03T14:05:14.158788",
-                "uuid": "9dab05a6-06a7-48cd-ba68-8ff67a0a921b"
-            },
-            {
-                "video": "BAACAgIAAxkBAAIllGgVwCm3JoklctpXM3lEAVTNHuseAALgawAC-DWwSHU9I5qFSjlCNgQ",
-                "saved_date": "2025-05-03T14:05:14.159764",
-                "uuid": "52c10ad6-d67a-4721-8ef8-8a1cbecbde41"
             }
         ]
     },
     "group_buffer_useful": {},
     "group_buffer": {},
-    "product_photos": [
-        {
-            "photo": "AgACAgIAAxkBAAIlGWgVuwJdIzGX4G3WWOLBgDXu1DokAAKr6zEb-DWwSHfJqbaPPjPOAQADAgADeQADNgQ",
-            "saved_date": "2025-05-03T13:55:58.671199",
-            "uuid": "e17b4661-05f6-461e-8947-b108b03ba31d"
-        }
-    ],
+    "product_photos": [],
     "product_videos": [
-        {
-            "video": "BAACAgIAAxkBAAIlQmgVv1fcpfKc9YyucKE9rw0QffKnAAK4awAC-DWwSBUmJvKxZCsfNgQ",
-            "saved_date": "2025-05-03T14:01:42.055164",
-            "uuid": "3e38b133-760d-46be-bdc9-479e85fe406b"
-        },
         {
             "video": "BAACAgIAAxkBAAIlXGgVv9ji4nsEQLjZjBIu7M0T5RMaAALHawAC-DWwSHK6Nat-2XFwNgQ",
             "saved_date": "2025-05-03T14:03:51.512505",
             "uuid": "5df0d318-66c4-4fd7-ab46-344ac390431d"
-        },
-        {
-            "video": "BAACAgIAAxkBAAIlUmgVv9jipLKezmm0ZvyXE3ZukabNAAK-awAC-DWwSGOreMJWEnRXNgQ",
-            "saved_date": "2025-05-03T14:03:53.247387",
-            "uuid": "61adbbdd-8fbb-4f2f-babe-d459465f8ad9"
-        },
-        {
-            "video": "BAACAgIAAxkBAAIlU2gVv9iFujrkebXf___JAAEwjb0WWwACv2sAAvg1sEha1kBjAjK4ITYE",
-            "saved_date": "2025-05-03T14:03:53.248189",
-            "uuid": "7de3d1fd-2da8-45ea-b217-ee8471f6bf5f"
-        },
-        {
-            "video": "BAACAgIAAxkBAAIlVGgVv9iRoHnIwlr-wkF53-80ady0AALAawAC-DWwSElClEEN27L2NgQ",
-            "saved_date": "2025-05-03T14:03:53.248795",
-            "uuid": "2ce4f0ea-0043-4ced-85e8-8394fccc5c3b"
-        },
-        {
-            "video": "BAACAgIAAxkBAAIlVWgVv9ghkO6dVoy7yqoBDZBOiC-NAALBawAC-DWwSOt-WNtcHzxhNgQ",
-            "saved_date": "2025-05-03T14:03:53.249593",
-            "uuid": "bc6de549-71da-47fa-ba65-3788a9c5b4a1"
-        },
-        {
-            "video": "BAACAgIAAxkBAAIlVmgVv9iiloUqGql_znDP_ZFzDr5tAALCawAC-DWwSLEqFx8_v_98NgQ",
-            "saved_date": "2025-05-03T14:03:53.250424",
-            "uuid": "f5207dce-6765-425b-86b5-77b274fd0109"
-        },
-        {
-            "video": "BAACAgIAAxkBAAIlV2gVv9jPb260nOL-x4ngodQlBJ1HAALwawACPZ2wSPBCKSI_NuSUNgQ",
-            "saved_date": "2025-05-03T14:03:53.252018",
-            "uuid": "d0ad4fc1-027c-43d9-ad31-10c48b1aa037"
-        },
-        {
-            "video": "BAACAgIAAxkBAAIlWGgVv9hl-D9Q_20T8NJQOHjVW010AALDawAC-DWwSKbQYB_RB0E6NgQ",
-            "saved_date": "2025-05-03T14:03:53.252768",
-            "uuid": "cc5a4bd4-dde5-4e14-bdb7-8389699c2ff1"
-        },
-        {
-            "video": "BAACAgIAAxkBAAIlWWgVv9hzq8c7hhe_bWBidzcQyBW4AALEawAC-DWwSOipk0SarDp6NgQ",
-            "saved_date": "2025-05-03T14:03:53.253662",
-            "uuid": "e9a2b60b-846b-447c-ad74-4402cc8db43d"
-        },
-        {
-            "video": "BAACAgIAAxkBAAIlWmgVv9jT7FQHed4AAWLUz5i_IPPvdQACxWsAAvg1sEjrVaaoJuMMQzYE",
-            "saved_date": "2025-05-03T14:03:53.254847",
-            "uuid": "b7502da4-6408-49f7-99c7-2abd711f84da"
-        },
-        {
-            "video": "BAACAgIAAxkBAAIlW2gVv9i4JpqizCbkA_u1Ijpxzua0AALGawAC-DWwSAABij6IM073KjYE",
-            "saved_date": "2025-05-03T14:03:53.255914",
-            "uuid": "99435b31-f285-4f5e-be11-316ca310a393"
         }
     ],
     "product_texts": [
-        {
-            "text": "Клубника(виктория)ремонтантная 1шт-150р. Слабоусая1шт-100р.  Сирень-1000р. Гортензия-850р. Голубика-660р. Жасмин(чубушник)-1100р. Вишня(красная, черная)-1000р. Смородина(красная, чёрная) -350р. Яблоня-950р. Крыжовник(не колючий)-800р. Рябина(красная)-550р.",
-            "message_id": 9516,
-            "saved_date": "2025-05-03T13:55:40.520933",
-            "uuid": "907a0b83-a932-4ff1-9103-29579b0add73"
-        },
         {
             "text": "Клубника(виктория)ремонтантная 1шт-150р. Слабоусая1шт-100р.  Сирень-1000р. Гортензия-850р. Голубика-660р. Жасмин(чубушник)-1100р. Вишня(красная, черная)-1000р. Смородина(красная, чёрная) -350р. Яблоня-950р. Крыжовник(не колючий)-800р. Рябина(красная)-550р.",
             "message_id": 9547,
