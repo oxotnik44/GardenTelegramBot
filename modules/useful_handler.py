@@ -39,14 +39,22 @@ async def handle_photo_useful(update, context, force_tag: bool = False):
     photo_file_id = update.message.photo[-1].file_id
     caption = update.message.caption or ""
     media_group_id = update.message.media_group_id
-
+    text = caption.lower()
     # Приводим caption к нижнему регистру и убираем лишние пробелы
-    caption = caption.strip().lower()
-
+    caption = caption.strip()
+    if caption:
+        extra = caption.lower().replace("@интересное", "").strip()
+        if extra:
+            tags = []
+            if force_tag or "@интересное" in text:
+                tags.append("@интересное")
+            item = {"photo": photo_file_id, "tags": tags, "caption": caption}
+            save_user_message(user_id, item, "useful")
+            return
     if media_group_id is None:
         # Одиночное фото
         tags = []
-        if force_tag or ("@интересное" in caption):
+        if force_tag or ("@интересное" in caption.lower()):
             tags.append("@интересное")
         item = {"photo": photo_file_id, "tags": tags}
         save_user_message(user_id, item, tag="useful")
@@ -61,7 +69,7 @@ async def handle_photo_useful(update, context, force_tag: bool = False):
             }
         group_info = group_buffer_useful[key]
         group_info["photos"].append(photo_file_id)
-        if force_tag or ("@интересное" in caption):
+        if force_tag or ("@интересное" in caption.lower()):
             group_info["has_interesting_info"] = True
         if group_info["task"] is not None:
             group_info["task"].cancel()

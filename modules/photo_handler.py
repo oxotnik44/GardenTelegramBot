@@ -38,17 +38,27 @@ async def handle_photo(update, context, force_tag: bool = False):
     """
     user_id = update.message.from_user.id
     photo_file_id = update.message.photo[-1].file_id
-    caption = update.message.caption or ""
+    caption = (update.message.caption or "").strip()
+    text = caption.lower()
     media_group_id = update.message.media_group_id
 
-    # Приводим caption к нижнему регистру и убираем лишние пробелы
-    caption = caption.strip().lower()
+    # Если у фото есть подпись (caption) — сразу сохраняем объединённую информацию
+    if caption:
+        # Убираем из caption все упоминания тегов и проверяем, остался ли текст
+        extra = caption.lower().replace("@товары", "").strip()
+        if extra:
+            tags = []
+            if force_tag or "@товары" in text:
+                tags.append("@товары")
+            item = {"photo": photo_file_id, "tags": tags, "caption": caption}
+            save_user_message(user_id, item, "product")
+            return
 
     if media_group_id is None:
         # Одиночное фото
         tags = []
         # Если force_tag установлен, или если в подписи найден тег
-        if force_tag or ("@товары" in caption):
+        if force_tag or ("@товары" in caption.lower()):
             tags.append("@товары")
         item = {"photo": photo_file_id, "tags": tags}
         save_user_message(user_id, item, "product")
@@ -64,7 +74,7 @@ async def handle_photo(update, context, force_tag: bool = False):
         group_info = group_buffer[key]
         group_info["photos"].append(photo_file_id)
         # Если force_tag установлен, либо в подписи найден тег, помечаем группу как содержащую товар
-        if force_tag or ("@товары" in caption):
+        if force_tag or ("@товары" in caption.lower()):
             group_info["has_product"] = True
         if group_info["task"] is not None:
             group_info["task"].cancel()

@@ -49,9 +49,40 @@ async def question(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await show_questions(update, context)
 
 
+async def send_items_sorted(bot, chat_id, items):
+    items.sort(key=lambda x: x.get("saved_date") or datetime.min)
+    i, n = 0, len(items)
+    while i < n:
+        it = items[i]
+        # Фото с подписей
+        if it["type"] == "photo" and "caption" in it:
+            await bot.send_photo(chat_id=chat_id, photo=it["media"], caption=it["caption"])
+            i += 1
+        # Группа фото без подписей
+        elif it["type"] == "photo":
+            grp = []
+            while i < n and items[i]["type"] == "photo" and "caption" not in items[i]:
+                grp.append(items[i]["media"])
+                i += 1
+            await send_media_group(bot, chat_id, grp)
+        # Видео
+        elif it["type"] == "video":
+            if "caption" in it:
+                await bot.send_video(chat_id=chat_id, video=it["media"], caption=it["caption"])
+            else:
+                await bot.send_video(chat_id=chat_id, video=it["media"])
+            i += 1
+        # Текст
+        else:
+            await bot.send_message(chat_id=chat_id, text=it["media"])
+            i += 1
+
+# Отправка медиа группы
+
+
 async def send_media_group(bot, chat_id, files, batch_size=10, delay=2):
-    for i in range(0, len(files), batch_size):
-        group = [InputMediaPhoto(media=f) for f in files[i: i + batch_size]]
+    for j in range(0, len(files), batch_size):
+        group = [InputMediaPhoto(media=f) for f in files[j:j+batch_size]]
         try:
             await bot.send_media_group(chat_id, group)
         except TimedOut:
@@ -61,35 +92,19 @@ async def send_media_group(bot, chat_id, files, batch_size=10, delay=2):
             await asyncio.sleep(delay)
 
 
-async def send_items_sorted(bot, chat_id, items):
-    items.sort(key=lambda x: x.get("saved_date") or datetime.min)
-    i, n = 0, len(items)
-    while i < n:
-        it = items[i]
-        if it["type"] == "photo":
-            grp = []
-            while i < n and items[i]["type"] == "photo":
-                grp.append(items[i]["media"])
-                i += 1
-            await send_media_group(bot, chat_id, grp)
-        elif it["type"] == "video":
-            await bot.send_video(chat_id=chat_id, video=it["media"])
-            i += 1
-        else:  # text
-            await bot.send_message(chat_id=chat_id, text=it["media"])
-            i += 1
-
-
 async def products(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         await update.message.delete()
     except:
         pass
+    user_id = update.effective_user.id
     items = get_user_message("product")
     if items:
-        await send_items_sorted(context.bot, update.effective_chat.id, items)
+        await send_items_sorted(context.bot, user_id, items)
     else:
-        await context.bot.send_message(update.effective_chat.id, "Нет новых товаров.")
+        await context.bot.send_message(chat_id=user_id, text="Нет новых товаров.")
+
+# Хендлер /useful отправляет в ЛС пользователю
 
 
 async def useful(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -97,50 +112,37 @@ async def useful(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.delete()
     except:
         pass
-
-    # возвращает dict с keys useful_photo, useful_video, useful_text
+    user_id = update.effective_user.id
     raw = get_user_message("useful")
     items = []
-
     # Фото
     for p in raw.get("useful_photo", []):
-        if isinstance(p, dict):
-            media = p.get("photo")
-            date = p.get("saved_date")
-        else:
-            media = p
-            date = None
-        items.append({"type": "photo", "media": media, "saved_date": date})
-
+        media = p["photo"] if isinstance(p, dict) else p
+        date = p.get("saved_date") if isinstance(p, dict) else None
+        entry = {"type": "photo", "media": media, "saved_date": date}
+        if isinstance(p, dict) and p.get("caption"):
+            entry["caption"] = p.get("caption")
+        items.append(entry)
     # Видео
     for v in raw.get("useful_video", []):
-        if isinstance(v, dict):
-            media = v.get("video")
-            date = v.get("saved_date")
-        else:
-            media = v
-            date = None
-        items.append({"type": "video", "media": media, "saved_date": date})
-
+        media = v["video"] if isinstance(v, dict) else v
+        date = v.get("saved_date") if isinstance(v, dict) else None
+        entry = {"type": "video", "media": media, "saved_date": date}
+        if isinstance(v, dict) and v.get("caption"):
+            entry["caption"] = v.get("caption")
+        items.append(entry)
     # Тексты
     for t in raw.get("useful_text", []):
-        if isinstance(t, dict):
-            text = t.get("text", "")
-            date = t.get("saved_date")
-        else:
-            text = t
-            date = None
+        text = t.get("text") if isinstance(t, dict) else t
+        date = t.get("saved_date") if isinstance(t, dict) else None
         cleaned = text.replace("@Интересное", "").strip()
         if cleaned:
             items.append(
                 {"type": "text", "media": cleaned, "saved_date": date})
-
     if not items:
-        await context.bot.send_message(update.effective_chat.id, "Нет сохранённых @Интересное.")
+        await context.bot.send_message(chat_id=user_id, text="Нет сохранённых @Интересное.")
         return
-
-    # Отправка в хронологическом порядке
-    await send_items_sorted(context.bot, update.effective_chat.id, items)
+    await send_items_sorted(context.bot, user_id, items)
 
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -161,7 +163,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         for idx, q in enumerate(questions):
             if q.get("message_id") == user_msg_id:
                 # Получаем данные о текущем вопросе
-                original_chat_id = q.get("chat_id", -1002581494586)
+                original_chat_id = q.get("chat_id", -1002592662205)
                 question_text = q.get("text", "Нет текста вопроса")
                 question_uuid = q.get("uuid")
                 try:

@@ -128,32 +128,31 @@ def filter_old_records(records, days=30):
 def save_user_message(user_id, item, tag):
     """
     Сохраняет сообщение с заданным тегом и добавляет уникальный uuid для каждой записи.
-    Данные обновляются из файла и сохраняются обратно после внесения изменений.
+    Если item содержит ключ "caption", сохраняем его в ту же запись.
+    Никогда не сохраняем в качестве текста сам тег @товары или @интересное.
     Для tag='useful' поддерживаются фото, текст и видео.
     Для tag='product' поддерживаются фото и видео.
     """
-    load_storage_data()  # Обновляем данные из файла
+    load_storage_data()
     now = datetime.datetime.now()
     record_uuid = str(uuid.uuid4())
 
-    if tag == "question" and isinstance(item, dict) and "text" in item:
-        question_text = item["text"].strip()
-        if question_text and "?" in question_text and question_text != "?":
-            user_data["questions"].append({
-                "user_id": user_id,
-                "text": question_text,
-                "message_id": item["message_id"],
-                "saved_date": now,
-                "uuid": record_uuid
-            })
-            print(f"✅ Сохранён вопрос от {user_id}: {question_text}")
+    # Функция проверки, является ли строка только тегом
+    def is_only_tag(s: str) -> bool:
+        text = s.strip().lower()
+        return text in ("@товары", "@интересное")
 
-    elif tag == "useful":
-        # Определяем тип полезного контента: фото, текст или видео
+    if tag == "useful":
+        # Определяем тип полезного контента
         if "photo" in item:
             key = "useful_photo"
             value = item.get("photo")
         elif "text" in item:
+            # Пропускаем, если это только тег
+            if is_only_tag(item.get("text")):  # noqa
+                print(
+                    f"⚠️ Текст содержит только тег, пропускаем: {item.get('text')}")
+                return
             key = "useful_text"
             value = item.get("text")
         elif "video" in item:
@@ -162,51 +161,57 @@ def save_user_message(user_id, item, tag):
         else:
             print("⚠️ Неопределён тип полезного контента")
             return
-        user_data_useful[key].append({
-            ("photo" if key == "useful_photo" else ("text" if key == "useful_text" else "video")): value,
+        entry = {
+            key.split('_')[1]: value,
             "saved_date": now,
             "uuid": record_uuid
-        })
-        print(
-            f"✅ Сохранён {'фото' if key == 'useful_photo' else ('текст' if key == 'useful_text' else 'видео')}: {value}")
+        }
+        # Если есть caption — проверяем, не является ли caption только тегом
+        if "caption" in item and not is_only_tag(item.get("caption")):
+            entry["caption"] = item["caption"]
+        user_data_useful[key].append(entry)
+        print(f"✅ Сохранён полезный контент: {entry}")
 
     elif tag == "product":
-
-        # Сохраняем текст продукта, если он есть
-        if item.get("type") == "text" and "text" in item:
-            product_texts.append({
-                "text":       item["text"],
-                "message_id": item.get("message_id"),
-                "saved_date": now,
-                "uuid":       record_uuid
-            })
-            print("✅ Сохранён текст продукта")
-
-        # Иначе — как раньше, фото или видео
-        elif isinstance(item, dict) and "video" in item:
-            product_videos.append({
-                "video": item["video"],
-                "saved_date": now,
-                "uuid": record_uuid
-            })
-            print("✅ Сохранено видео продукта")
-
-        elif isinstance(item, dict) and "photo" in item:
-            product_photos.append({
-                "photo": item["photo"],
-                "saved_date": now,
-                "uuid": record_uuid
-            })
-            print("✅ Сохранена фотография продукта")
-
+        # Фото
+        if "photo" in item:
+            entry = {"photo": item["photo"],
+                     "saved_date": now, "uuid": record_uuid}
+            if "caption" in item and not is_only_tag(item.get("caption")):
+                entry["caption"] = item["caption"]
+            product_photos.append(entry)
+            print(f"✅ Сохранена фотография продукта: {entry}")
+        # Видео
+        elif "video" in item:
+            entry = {"video": item["video"],
+                     "saved_date": now, "uuid": record_uuid}
+            if "caption" in item and not is_only_tag(item.get("caption")):
+                entry["caption"] = item["caption"]
+            product_videos.append(entry)
+            print(f"✅ Сохранено видео продукта: {entry}")
+        # Текст (с текстовыми товарами)
+        elif "text" in item:
+            # Пропускаем, если это только тег
+            if is_only_tag(item.get("text")):
+                print(
+                    f"⚠️ Текст содержит только тег, пропускаем: {item.get('text')}")
+                return
+            entry = {"text": item["text"], "message_id": item.get("message_id"),
+                     "saved_date": now, "uuid": record_uuid}
+            product_texts.append(entry)
+            print(f"✅ Сохранён текст продукта: {entry}")
         else:
-            # Если передан не словарь — считаем, что это фото
-            product_photos.append({
-                "photo": item,
-                "saved_date": now,
-                "uuid": record_uuid
-            })
-            print("✅ Сохранена фотография продукта")
+            print("⚠️ Неизвестный формат продукта")
+            return
+
+    elif tag == "question" and isinstance(item, dict) and "text" in item:
+        question_text = item["text"].strip()
+        if question_text and "?" in question_text and question_text != "?":
+            entry = {"user_id": user_id, "text": question_text,
+                     "message_id": item.get("message_id"), "saved_date": now,
+                     "uuid": record_uuid}
+            user_data["questions"].append(entry)
+            print(f"✅ Сохранён вопрос: {entry}")
 
     else:
         print(f"⚠️ Неизвестный тег {tag}")
@@ -234,52 +239,52 @@ def get_user_message(tag, filter_tag=None):
         filter_old_records(user_data_useful["useful_text"])
         filter_old_records(user_data_useful.get("useful_video", []))
         save_storage_data()
-        valid_photos = [r["photo"] for r in user_data_useful["useful_photo"]]
-        valid_texts = [r["text"] for r in user_data_useful["useful_text"]]
-        valid_videos = [r["video"]
-                        for r in user_data_useful.get("useful_video", [])]
-        if filter_tag == "photo":
-            return valid_photos
-        elif filter_tag == "text":
-            return valid_texts
-        elif filter_tag == "video":
-            return valid_videos
-        else:
-            return {
-                "useful_photo": valid_photos,
-                "useful_text": valid_texts,
-                "useful_video": valid_videos
-            }
+
+        # Возвращаем сразу «сырые» записи,
+        # чтобы далее в приложении можно было достать и media, и saved_date, и caption, и uuid.
+        return {
+            "useful_photo": user_data_useful["useful_photo"],
+            "useful_text":  user_data_useful["useful_text"],
+            "useful_video": user_data_useful.get("useful_video", [])
+        }
 
     elif tag == "product":
-        # Фильтруем устаревшие записи для фотографий и видео
         filter_old_records(product_photos)
         filter_old_records(product_videos)
         filter_old_records(product_texts)
         save_storage_data()
-        # Объединяем записи в один список
+
+        # Возвращаем словари, чтобы сохранить caption там, где он есть
         products = []
         for p in product_photos:
-            products.append({
-                "type": "photo",
-                "media": p["photo"],
+            entry = {
+                "type":       "photo",
+                "media":      p["photo"],
                 "saved_date": p["saved_date"],
-                "uuid": p["uuid"]
-            })
+                "uuid":       p["uuid"],
+            }
+            if "caption" in p:
+                entry["caption"] = p["caption"]
+            products.append(entry)
+
         for v in product_videos:
-            products.append({
-                "type": "video",
-                "media": v["video"],
+            entry = {
+                "type":       "video",
+                "media":      v["video"],
                 "saved_date": v["saved_date"],
-                "uuid": v["uuid"]
-            })
+                "uuid":       v["uuid"],
+            }
+            if "caption" in v:
+                entry["caption"] = v["caption"]
+            products.append(entry)
+
         for t in product_texts:
             products.append({
-                "type": "text",
-                "media": t["text"],
+                "type":       "text",
+                "media":      t["text"],
                 "message_id": t.get("message_id"),
                 "saved_date": t["saved_date"],
-                "uuid": t["uuid"]
+                "uuid":       t["uuid"]
             })
 
         return products
