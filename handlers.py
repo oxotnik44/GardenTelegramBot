@@ -140,7 +140,7 @@ async def useful(update: Update, context: ContextTypes.DEFAULT_TYPE):
             items.append(
                 {"type": "text", "media": cleaned, "saved_date": date})
     if not items:
-        await context.bot.send_message(chat_id=user_id, text="Нет сохранённых @Интересное.")
+        await context.bot.send_message(chat_id=user_id, text="В разделе «Интересное» пока ничего не сохранено.")
         return
     await send_items_sorted(context.bot, user_id, items)
 
