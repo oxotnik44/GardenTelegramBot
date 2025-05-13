@@ -102,7 +102,7 @@ async def products(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if items:
         await send_items_sorted(context.bot, user_id, items)
     else:
-        await context.bot.send_message(chat_id=user_id, text="Нет новых товаров.")
+        await context.bot.send_message(chat_id=user_id, text="Товаров пока нет.")
 
 # Хендлер /useful отправляет в ЛС пользователю
 
@@ -140,7 +140,7 @@ async def useful(update: Update, context: ContextTypes.DEFAULT_TYPE):
             items.append(
                 {"type": "text", "media": cleaned, "saved_date": date})
     if not items:
-        await context.bot.send_message(chat_id=user_id, text="В разделе «Интересное» пока ничего не сохранено.")
+        await context.bot.send_message(chat_id=user_id, text="Полезной информации пока нет.")
         return
     await send_items_sorted(context.bot, user_id, items)
 
